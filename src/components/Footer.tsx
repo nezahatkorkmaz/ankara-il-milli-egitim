@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, MapPin, ExternalLink, ArrowUp } from 'lucide-react';
+import { Phone, MapPin, ExternalLink, ArrowUp, ArrowRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -9,39 +9,71 @@ export const Footer: React.FC = () => {
   return (
     <footer className="official-meb-footer">
       <div className="footer-projects-strip">
-        <div className="meb-container projects-flex">
-          <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="project-item-box">
-            <span style={{ color: '#e30613', fontWeight: 900 }}>AnkBis</span>
-            <span>Ankara Bilişim Sistemleri</span>
-          </a>
-          <a href="https://www.eba.gov.tr" target="_blank" rel="noreferrer" className="project-item-box">
-            <img src="https://www.meb.gov.tr/assets/img/alt_banner/eba.png" alt="EBA - Eğitim Bilişim Ağı" />
-          </a>
-          <a href="https://www.cimer.gov.tr" target="_blank" rel="noreferrer" className="project-item-box">
-            <img src="https://www.meb.gov.tr/assets/img/alt_banner/cimer.png" alt="CİMER" />
-          </a>
-          <a href="https://www.turkiye.gov.tr" target="_blank" rel="noreferrer" className="project-item-box">
-            <img src="https://www.meb.gov.tr/assets/img/alt_banner/turkiyegovtr.png" alt="e-Devlet Kapısı" />
-          </a>
-          <a href="http://www.meb.gov.tr/duyurular/duyurular2012/basinmus/mebim.php" target="_blank" rel="noreferrer" className="project-item-box" style={{ border: '1px solid #fecaca', backgroundColor: '#fef2f2' }}>
-            <img src="https://www.meb.gov.tr/assets/img/alt_banner/mebim.png" alt="MEBİM 444 0 632" />
-          </a>
+        <div className="meb-container">
+          <h3 className="footer-section-heading">Bağlantılar</h3>
+          
+          <div className="projects-flex">
+            <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="official-link-card">
+              <div className="link-card-top">
+                <span className="link-card-title" style={{ color: '#e30613' }}>AnkBis</span>
+                <span className="link-card-dots">...</span>
+              </div>
+              <span className="link-card-subtitle">Ankara Bilişim Sistemleri</span>
+              <ArrowRight size={14} className="link-card-arrow" />
+            </a>
+
+            <a href="https://okulsagligi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
+              <div className="link-card-top">
+                <span className="link-card-title">Okul Sağlığı</span>
+                <span className="link-card-dots">...</span>
+              </div>
+              <span className="link-card-subtitle">Okul Sağlığı Portalı</span>
+              <ArrowRight size={14} className="link-card-arrow" />
+            </a>
+
+            <a href="https://fatihprojesi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
+              <div className="link-card-top">
+                <span className="link-card-title">f@tih Projesi</span>
+                <span className="link-card-dots">...</span>
+              </div>
+              <span className="link-card-subtitle">Eğitimde Fırsatları Artırma</span>
+              <ArrowRight size={14} className="link-card-arrow" />
+            </a>
+
+            <a href="https://isg.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
+              <div className="link-card-top">
+                <span className="link-card-title">İş Sağlığı ve Güvenliği</span>
+                <span className="link-card-dots">...</span>
+              </div>
+              <span className="link-card-subtitle">MEB İSG Birimi</span>
+              <ArrowRight size={14} className="link-card-arrow" />
+            </a>
+
+            <a href="http://www.meb.gov.tr/duyurular/duyurular2012/basinmus/mebim.php" target="_blank" rel="noreferrer" className="official-link-card" style={{ borderColor: '#fecaca', backgroundColor: '#fff5f5' }}>
+              <div className="link-card-top">
+                <span className="link-card-title" style={{ color: '#e30613' }}>MEBİM 444 0 632</span>
+                <span className="link-card-dots">...</span>
+              </div>
+              <span className="link-card-subtitle">Danışma Hattı</span>
+              <ArrowRight size={14} className="link-card-arrow" style={{ color: '#e30613' }} />
+            </a>
+          </div>
         </div>
       </div>
 
       <div className="footer-main-info">
         <div className="meb-container footer-info-grid">
           <div>
-            <h4 style={{ fontSize: '17px', fontWeight: 900, color: '#0f172a', marginBottom: '12px', fontFamily: 'Titillium Web, sans-serif' }}>
-              T.C. ANKARA İL MİLLÎ EĞİTİM MÜDÜRLÜĞÜ
+            <h4 className="footer-title-official">
+              ANKARA İL MİLLÎ EĞİTİM MÜDÜRLÜĞÜ
             </h4>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', color: '#475569', fontSize: '13.5px', marginBottom: '8px' }}>
+            <div className="footer-info-line">
               <MapPin size={18} color="#e30613" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <span>Adres: Gayret Mahallesi Arif Hikmet Caddesi No 4 Yenimahalle / ANKARA</span>
+              <span><strong>Adres:</strong> Gayret Mahallesi Arif Hikmet Caddesi No 4 Yenimahalle / ANKARA</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#475569', fontSize: '13.5px', marginBottom: '16px' }}>
+            <div className="footer-info-line" style={{ marginBottom: '16px' }}>
               <Phone size={18} color="#e30613" style={{ flexShrink: 0 }} />
-              <span>Telefon: 0 312 306 85 00 / 306 86 04 / 306 85 05</span>
+              <span><strong>Telefon:</strong> 0 312 306 86 00 / 306 86 04 / 306 86 05</span>
             </div>
 
             <a
@@ -52,14 +84,14 @@ export const Footer: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: '12.5px',
+                fontSize: '13px',
                 fontWeight: 700,
                 color: '#e30613',
-                backgroundColor: '#fef2f2',
-                padding: '8px 14px',
+                backgroundColor: '#ffffff',
+                padding: '8px 16px',
                 borderRadius: '4px',
                 textDecoration: 'none',
-                border: '1px solid #fecaca'
+                border: '1px solid #d1d5db'
               }}
             >
               <span>Diğer İletişim Seçenekleri İçin Tıklayın</span>
@@ -68,10 +100,10 @@ export const Footer: React.FC = () => {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#64748b', marginBottom: '6px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px' }}>
               SÖZLEŞME TAKİP BİRİMİ
             </div>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#111111' }}>
               Strateji Geliştirme Hizmetleri
             </div>
             <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '4px' }}>
@@ -86,8 +118,8 @@ export const Footer: React.FC = () => {
               className="mebim-real-img"
             />
             <div>
-              <div style={{ fontSize: '15px', fontWeight: 900, color: '#e30613', fontFamily: 'Titillium Web, sans-serif' }}>MEBİM İLETİŞİM MERKEZİ</div>
-              <div style={{ fontSize: '12.5px', color: '#475569', fontWeight: 600 }}>7/24 Bakanlık Danışma Hattı</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#e30613', fontFamily: 'var(--font-family)' }}>MEBİM İLETİŞİM MERKEZİ</div>
+              <div style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>7/24 Bakanlık Danışma Hattı</div>
             </div>
           </div>
         </div>
@@ -95,8 +127,8 @@ export const Footer: React.FC = () => {
 
       <div className="footer-bottom-copyright">
         <div className="meb-container copyright-flex">
-          <span>2026 © Türkiye Cumhuriyeti Millî Eğitim Bakanlığı. Tüm Hakları Saklıdır.</span>
-          <span>Dijital Kültür Rotaları Eğitimi ve Bilgi Kartları Paylaşım Platformu</span>
+          <span>2026 © Türkiye Cumhuriyeti Millî Eğitim Bakanlığı Tüm Hakları Saklıdır.</span>
+          <span>Dijital Kültür Rotaları Eğitimi ve Bilgi Kartları Paylaşım Portalı</span>
         </div>
       </div>
 
