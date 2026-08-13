@@ -79,7 +79,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="site-page-wrapper">
       <Header
         currentUser={currentUser}
         activeTab={activeTab}
