@@ -63,38 +63,40 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
   return (
     <div>
-      <section className="official-hero">
-        <div className="hero-backdrop-seal"></div>
+      <div className="official-hero-wrapper">
         <div className="meb-container">
-          <div className="hero-content-grid">
-            <div>
-              <span className="report-header-badge">SÖZLEŞME NO: TR51/25/İKT_TD/0041</span>
-              <h2 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '12px', lineHeight: 1.25, letterSpacing: '-0.3px' }}>
-                DİJİTAL KÜLTÜR ROTALARI PLATFORMU
-              </h2>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fcd34d', marginBottom: '16px' }}>
-                GEÇMİŞTEN GELECEĞE KÜLTÜRÜYLE ANKARA
-              </h3>
-              <p style={{ fontSize: '15.5px', color: '#cbd5e1', maxWidth: '780px', marginBottom: '28px', lineHeight: 1.6 }}>
-                Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitimi başarıyla tamamlayan 230 sertifikalı öğretmenimizin hazırladığı 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
-              </p>
-              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                <button className="btn-meb-primary" onClick={onOpenUpload}>
-                  {isLoggedIn ? 'Yeni 1 Sayfalık Afiş Yükle' : 'Öğretmen Girişi Yap ve Afiş Yükle'}
-                </button>
+          <div className="official-hero-boxed">
+            <div className="hero-backdrop-seal"></div>
+            <div className="hero-content-grid">
+              <div>
+                <span className="report-header-badge">SÖZLEŞME NO: TR51/25/İKT_TD/0041</span>
+                <h2 style={{ fontSize: '30px', fontWeight: 700, marginBottom: '10px', lineHeight: 1.25, letterSpacing: '-0.3px' }}>
+                  DİJİTAL KÜLTÜR ROTALARI PLATFORMU
+                </h2>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fcd34d', marginBottom: '14px' }}>
+                  GEÇMİŞTEN GELECEĞE KÜLTÜRÜYLE ANKARA
+                </h3>
+                <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '780px', marginBottom: '24px', lineHeight: 1.6 }}>
+                  Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitimi başarıyla tamamlayan 230 sertifikalı öğretmenimizin hazırladığı 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
+                </p>
+                <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                  <button className="btn-meb-primary" onClick={onOpenUpload}>
+                    {isLoggedIn ? 'Yeni 1 Sayfalık Afiş Yükle' : 'Öğretmen Girişi Yap ve Afiş Yükle'}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="hero-seal-card-wrap">
-              <img
-                src="/dkr-hero-logo.png"
-                alt="Dijital Kültür Rotaları Platformu Resmî Logosu"
-                className="hero-seal-img"
-              />
+              <div className="hero-seal-card-wrap">
+                <img
+                  src="/dkr-hero-logo.png"
+                  alt="Dijital Kültür Rotaları Platformu Resmî Logosu"
+                  className="hero-seal-img"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <div className="meb-container">
         <div className="hero-stats-banner">
