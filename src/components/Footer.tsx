@@ -15,7 +15,9 @@ export const Footer: React.FC = () => {
           <div className="projects-flex">
             <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
-                <span className="link-card-title" style={{ color: '#e30613' }}>AnkBis</span>
+                <div className="link-card-logo-wrap">
+                  <span style={{ color: '#e30613', fontWeight: 800, fontSize: '18px', fontFamily: 'var(--font-family)' }}>AnkBis</span>
+                </div>
                 <span className="link-card-dots">...</span>
               </div>
               <span className="link-card-subtitle">Ankara Bilişim Sistemleri</span>
@@ -24,7 +26,10 @@ export const Footer: React.FC = () => {
 
             <a href="https://okulsagligi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
-                <span className="link-card-title">Okul Sağlığı</span>
+                <div className="link-card-logo-wrap">
+                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="Okul Sağlığı Logo" className="card-logo-img" />
+                  <span className="link-card-title">Okul Sağlığı</span>
+                </div>
                 <span className="link-card-dots">...</span>
               </div>
               <span className="link-card-subtitle">Okul Sağlığı Portalı</span>
@@ -33,7 +38,10 @@ export const Footer: React.FC = () => {
 
             <a href="https://fatihprojesi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
-                <span className="link-card-title">f@tih Projesi</span>
+                <div className="link-card-logo-wrap">
+                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="f@tih Projesi Logo" className="card-logo-img" />
+                  <span className="link-card-title">f@tih Projesi</span>
+                </div>
                 <span className="link-card-dots">...</span>
               </div>
               <span className="link-card-subtitle">Eğitimde Fırsatları Artırma</span>
@@ -42,19 +50,25 @@ export const Footer: React.FC = () => {
 
             <a href="https://isg.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
-                <span className="link-card-title">İş Sağlığı ve Güvenliği</span>
+                <div className="link-card-logo-wrap">
+                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="İş Sağlığı ve Güvenliği Logo" className="card-logo-img" />
+                  <span className="link-card-title">İş Sağlığı Güvenliği</span>
+                </div>
                 <span className="link-card-dots">...</span>
               </div>
-              <span className="link-card-subtitle">MEB İSG Birimi</span>
+              <span className="link-card-subtitle">MEB İSG Hizmetleri</span>
               <ArrowRight size={14} className="link-card-arrow" />
             </a>
 
             <a href="http://www.meb.gov.tr/duyurular/duyurular2012/basinmus/mebim.php" target="_blank" rel="noreferrer" className="official-link-card" style={{ borderColor: '#fecaca', backgroundColor: '#fff5f5' }}>
               <div className="link-card-top">
-                <span className="link-card-title" style={{ color: '#e30613' }}>MEBİM 444 0 632</span>
+                <div className="link-card-logo-wrap">
+                  <img src="https://www.meb.gov.tr/assets/img/mebimlogo.png" alt="MEBİM 444 0 632" className="card-logo-img" style={{ height: '24px' }} />
+                  <span className="link-card-title" style={{ color: '#e30613' }}>MEBİM</span>
+                </div>
                 <span className="link-card-dots">...</span>
               </div>
-              <span className="link-card-subtitle">Danışma Hattı</span>
+              <span className="link-card-subtitle">444 0 632 Danışma Hattı</span>
               <ArrowRight size={14} className="link-card-arrow" style={{ color: '#e30613' }} />
             </a>
           </div>
@@ -68,12 +82,12 @@ export const Footer: React.FC = () => {
               ANKARA İL MİLLÎ EĞİTİM MÜDÜRLÜĞÜ
             </h4>
             <div className="footer-info-line">
-              <MapPin size={18} color="#e30613" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <span><strong>Adres:</strong> Gayret Mahallesi Arif Hikmet Caddesi No 4 Yenimahalle / ANKARA</span>
+              <MapPin size={16} color="#e30613" style={{ flexShrink: 0, marginTop: '3px' }} />
+              <span>Adres: Gayret Mahallesi Arif Hikmet Caddesi No 4 Yenimahalle / ANKARA</span>
             </div>
             <div className="footer-info-line" style={{ marginBottom: '16px' }}>
-              <Phone size={18} color="#e30613" style={{ flexShrink: 0 }} />
-              <span><strong>Telefon:</strong> 0 312 306 86 00 / 306 86 04 / 306 86 05</span>
+              <Phone size={16} color="#e30613" style={{ flexShrink: 0, marginTop: '3px' }} />
+              <span>Telefon: 0 312 306 86 00 / 306 86 04 / 306 86 05</span>
             </div>
 
             <a
@@ -85,7 +99,7 @@ export const Footer: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px',
                 fontSize: '13px',
-                fontWeight: 700,
+                fontWeight: 600,
                 color: '#e30613',
                 backgroundColor: '#ffffff',
                 padding: '8px 16px',
@@ -100,13 +114,13 @@ export const Footer: React.FC = () => {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', marginBottom: '4px' }}>
               SÖZLEŞME TAKİP BİRİMİ
             </div>
-            <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#111111' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#222222' }}>
               Strateji Geliştirme Hizmetleri
             </div>
-            <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: 400 }}>
               Sözleşme No: TR51/25/İKT_TD/0041
             </div>
           </div>
@@ -118,8 +132,8 @@ export const Footer: React.FC = () => {
               className="mebim-real-img"
             />
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#e30613', fontFamily: 'var(--font-family)' }}>MEBİM İLETİŞİM MERKEZİ</div>
-              <div style={{ fontSize: '13px', color: '#475569', fontWeight: 600 }}>7/24 Bakanlık Danışma Hattı</div>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#e30613', fontFamily: 'var(--font-family)' }}>MEBİM İLETİŞİM MERKEZİ</div>
+              <div style={{ fontSize: '12.5px', color: '#475569', fontWeight: 400 }}>7/24 Bakanlık Danışma Hattı</div>
             </div>
           </div>
         </div>

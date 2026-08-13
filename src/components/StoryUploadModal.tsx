@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, DigitalStoryCard, RouteCategory } from '../types';
-import { X, UploadCloud, Image as ImageIcon, MapPin, Tag, FileText, CheckCircle2 } from 'lucide-react';
+import { X, UploadCloud, CheckCircle2 } from 'lucide-react';
 
 interface StoryUploadModalProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
   const [district, setDistrict] = useState<string>('Altındağ');
   const [targetLevel, setTargetLevel] = useState<string>('Ortaokul (5-8. Sınıf)');
   const [description, setDescription] = useState<string>('');
-  const [imageUrl, setImageUrl] = useState<string>('https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1000&q=80');
+  const [imageUrl, setImageUrl] = useState<string>('/posters/erimtan-muzesi.jpg');
   const [tagsInput, setTagsInput] = useState<string>('Ankara Kültür Rotası, Dijital Hikaye');
   const [validationError, setValidationError] = useState<string>('');
 
@@ -67,7 +67,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
       authorName: currentUser.name,
       authorSchool: currentUser.school,
       description: description.trim(),
-      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1000&q=80',
+      imageUrl: imageUrl || '/posters/erimtan-muzesi.jpg',
       createdAt: new Date().toISOString().split('T')[0],
       targetLevel,
       tags: tagsArray.length > 0 ? tagsArray : ['Dijital Afiş', 'Ankara'],
@@ -83,7 +83,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
       <div className="modal-container large">
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <UploadCloud size={24} color="#c8102e" />
+            <UploadCloud size={24} color="#e30613" />
             <h3 className="modal-title">Yeni 1 Sayfalık Dijital Afiş & Bilgi Kartı Yükleme</h3>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -92,7 +92,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
         </div>
 
         <div className="modal-body">
-          <div style={{ backgroundColor: '#fff0f2', border: '1px solid #f5c2c7', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#a00c24' }}>
+          <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#e30613' }}>
             <strong>Yükleyen Öğretmen:</strong> {currentUser.name} ({currentUser.school} - {currentUser.branch})
           </div>
 
@@ -104,7 +104,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Örn: Augustus Tapınağı ve Roma Mirası Bilgi Kartı"
+                    placeholder="Örn: Erimtan Müzesi Ankara Hazinesi Bilgi Kartı"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -157,7 +157,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Örn: Roma, Tarih, Kültür, Ulus"
+                    placeholder="Örn: Müze, Tarih, Ankara, Kültür"
                     value={tagsInput}
                     onChange={(e) => setTagsInput(e.target.value)}
                   />
@@ -167,13 +167,13 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
               <div>
                 <div className="form-group">
                   <label>DİJİTAL AFİŞ GÖRSELİ VEYA TASARIM GÖRSELİ</label>
-                  <div className="file-dropzone" onClick={() => document.getElementById('poster-file-input')?.click()}>
-                    <UploadCloud size={36} color="#c8102e" style={{ margin: '0 auto 10px' }} />
+                  <div className="file-dropzone" onClick={() => document.getElementById('poster-file-input')?.click()} style={{ border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '24px', textAlign: 'center', cursor: 'pointer', backgroundColor: '#f8fafc' }}>
+                    <UploadCloud size={36} color="#e30613" style={{ margin: '0 auto 10px' }} />
                     <div style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
-                      Dijital Afiş / Bilgi Kartı Dosyası Yüklemek İçin Tıklayın
+                      Dijital Afiş / Bilgi Kartı Görseli Yüklemek İçin Tıklayın
                     </div>
                     <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      PNG, JPG veya WEBP (Maksimum 10MB)
+                      PNG, JPG veya WEBP (1 Sayfalık Görsel Afiş)
                     </div>
                     <input
                       id="poster-file-input"
@@ -186,9 +186,9 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 </div>
 
                 {imageUrl && (
-                  <div className="poster-preview-box">
-                    <img src={imageUrl} alt="Afiş Önizleme" />
-                    <div style={{ padding: '8px 12px', fontSize: '12px', color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div className="poster-preview-box" style={{ marginTop: '12px' }}>
+                    <img src={imageUrl} alt="Afiş Önizleme" style={{ maxHeight: '220px', objectFit: 'contain' }} />
+                    <div style={{ padding: '8px 12px', fontSize: '12px', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                       <CheckCircle2 size={16} /> Görsel Yüklendi ve Hazır
                     </div>
                   </div>
@@ -208,7 +208,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
             </div>
 
             {validationError && (
-              <div style={{ color: '#c8102e', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>
+              <div style={{ color: '#e30613', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>
                 {validationError}
               </div>
             )}
