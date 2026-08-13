@@ -64,17 +64,35 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
   return (
     <div>
       <section className="official-hero">
+        <div className="hero-backdrop-seal"></div>
         <div className="meb-container">
-          <span className="report-header-badge">PROJE NO: TR51/25/İKT_TD/0041</span>
-          <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '12px', lineHeight: 1.25 }}>
-            Dijital Kültür Rotaları (Geçmişten Geleceğe Kültürüyle Ankara)
-          </h2>
-          <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '840px', marginBottom: '24px', lineHeight: 1.6 }}>
-            Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitim alan 230 sertifikalı öğretmenimiz tarafından hazırlanan 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
-          </p>
-          <button className="btn-meb-primary" onClick={onOpenUpload}>
-            {isLoggedIn ? 'Yeni 1 Sayfalık Afiş Yükle' : 'Öğretmen Girişi Yap ve Afiş Yükle'}
-          </button>
+          <div className="hero-content-grid">
+            <div>
+              <span className="report-header-badge">SÖZLEŞME NO: TR51/25/İKT_TD/0041</span>
+              <h2 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '12px', lineHeight: 1.25, letterSpacing: '-0.3px' }}>
+                DİJİTAL KÜLTÜR ROTALARI PLATFORMU
+              </h2>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fcd34d', marginBottom: '16px' }}>
+                GEÇMİŞTEN GELECEĞE KÜLTÜRÜYLE ANKARA
+              </h3>
+              <p style={{ fontSize: '15.5px', color: '#cbd5e1', maxWidth: '780px', marginBottom: '28px', lineHeight: 1.6 }}>
+                Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitimi başarıyla tamamlayan 230 sertifikalı öğretmenimizin hazırladığı 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
+              </p>
+              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                <button className="btn-meb-primary" onClick={onOpenUpload}>
+                  {isLoggedIn ? 'Yeni 1 Sayfalık Afiş Yükle' : 'Öğretmen Girişi Yap ve Afiş Yükle'}
+                </button>
+              </div>
+            </div>
+
+            <div className="hero-seal-card-wrap">
+              <img
+                src="/dkr-hero-logo.png"
+                alt="Dijital Kültür Rotaları Platformu Resmî Logosu"
+                className="hero-seal-img"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -124,7 +142,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
             </div>
 
             <div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#475569' }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#475569' }}>
                 Toplam {filteredCards.length} Afiş
               </span>
             </div>
@@ -145,7 +163,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
         {filteredCards.length === 0 ? (
           <div style={{ backgroundColor: '#ffffff', padding: '60px', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h4 style={{ fontSize: '18px', color: '#0f172a', marginBottom: '8px' }}>Arama Kriterlerine Uygun Dijital Afiş Bulunamadı</h4>
+            <h4 style={{ fontSize: '18px', color: '#0f172a', marginBottom: '8px', fontWeight: 700 }}>Arama Kriterlerine Uygun Dijital Afiş Bulunamadı</h4>
             <p style={{ color: '#64748b', fontSize: '14px' }}>Farklı bir arama kelimesi veya rota kategorisi seçmeyi deneyiniz.</p>
           </div>
         ) : (
@@ -169,7 +187,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
                     {card.tags.slice(0, 3).map((tag, idx) => (
-                      <span key={idx} style={{ backgroundColor: '#f1f5f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', color: '#475569', fontWeight: 600 }}>
+                      <span key={idx} style={{ backgroundColor: '#f1f5f9', fontSize: '11.5px', padding: '2px 8px', borderRadius: '4px', color: '#475569', fontWeight: 700 }}>
                         #{tag}
                       </span>
                     ))}
@@ -252,7 +270,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
               </div>
 
               <div style={{ marginTop: '20px' }}>
-                <h4 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '8px', color: '#0f172a' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px', color: '#0f172a' }}>
                   AFİŞ İÇERİĞİ VE KÜLTÜREL ÖZETİ
                 </h4>
                 <p className="report-text-block">
