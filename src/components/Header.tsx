@@ -1,6 +1,6 @@
 import React from 'react';
 import { User } from '../types';
-import { LogIn, LogOut, PlusCircle, LayoutGrid, FileText, Search, User as UserIcon } from 'lucide-react';
+import { LogIn, LogOut, PlusCircle, Search, User as UserIcon } from 'lucide-react';
 
 interface HeaderProps {
   currentUser: User | null;
@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
 
           <div className="official-search-bar">
-            <Search className="official-search-icon" size={18} />
+            <Search className="official-search-icon" size={16} />
             <input
               type="text"
               className="official-search-input"
@@ -82,7 +82,6 @@ export const Header: React.FC<HeaderProps> = ({
               src="https://www.meb.gov.tr/assets/img/turkiye.svg"
               alt="Türkiye Yüzyılı 100. Yıl Logosu"
               className="turkiye-yuzyili-real-img"
-              style={{ borderLeft: 'none', paddingLeft: 0, marginLeft: 0, height: '48px' }}
             />
           </div>
         </div>
@@ -102,7 +101,6 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`official-nav-link ${activeTab === 'gallery' ? 'active' : ''}`}
                 onClick={() => setActiveTab('gallery')}
               >
-                <LayoutGrid size={16} />
                 <span>Dijital Afiş Galerisi</span>
               </button>
             </li>
@@ -112,7 +110,6 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`official-nav-link ${activeTab === 'report' ? 'active' : ''}`}
                 onClick={() => setActiveTab('report')}
               >
-                <FileText size={16} />
                 <span>Proje Raporu & Sözleşme Detayları</span>
               </button>
             </li>
@@ -138,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>{currentUser.name} ({currentUser.role === 'admin' ? 'Yönetici' : 'Öğretmen'})</span>
                 </div>
                 <button className="btn-meb-primary" onClick={onOpenUploadModal}>
-                  <PlusCircle size={16} />
+                  <PlusCircle size={15} />
                   <span>Afiş Yükle</span>
                 </button>
                 <button className="btn-meb-outline" onClick={onLogout} title="Çıkış">
@@ -147,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             ) : (
               <button className="btn-meb-primary" onClick={onOpenLoginModal}>
-                <LogIn size={16} />
+                <LogIn size={15} />
                 <span>Öğretmen Girişi</span>
               </button>
             )}
