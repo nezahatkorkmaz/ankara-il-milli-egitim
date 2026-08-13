@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { DigitalStoryCard, RouteCategory } from '../types';
-import { Search, Filter, Eye, Download, Printer, Share2, MapPin, UserCheck, Calendar, BookOpen, X, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, Eye, Download, Printer, MapPin, UserCheck, BookOpen, X } from 'lucide-react';
 
 interface CardGalleryProps {
   cards: DigitalStoryCard[];
@@ -63,50 +63,48 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
   return (
     <div>
-      <section className="hero-banner">
-        <div className="meb-container hero-grid">
-          <div>
-            <span className="report-header-badge">Sözleşme No: TR51/25/İKT_TD/0041</span>
-            <h2 className="hero-title">
-              Ankara Dijital Kültür Rotaları Afiş & Bilgi Kartları Portalı
-            </h2>
-            <p className="hero-subtitle">
-              Dijital Kültür Rotaları eğitimi alan 230+ öğretmenimizin hazırladığı 1 sayfalık dijital bilgi afişlerini inceleyebilir, filtreleyebilir ve derslerinizde materyal olarak kullanabilirsiniz.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <button 
-                className="btn-meb-primary"
-                onClick={onOpenUpload}
-              >
-                {isLoggedIn ? 'Yeni Afiş Yükle' : 'Öğretmen Girişi İle Afiş Yükle'}
-              </button>
-            </div>
-          </div>
-
-          <div className="hero-stats-row">
-            <div className="hero-stat-card">
-              <div className="stat-num">230 / 300</div>
-              <div className="stat-lbl">Sertifikalı Katılımcı</div>
-            </div>
-            <div className="hero-stat-card">
-              <div className="stat-num">{cards.length}</div>
-              <div className="stat-lbl">Dijital Afiş</div>
-            </div>
-            <div className="hero-stat-card">
-              <div className="stat-num">6 Rota</div>
-              <div className="stat-lbl">Kültürel Rota</div>
-            </div>
-          </div>
+      <section className="official-hero">
+        <div className="meb-container">
+          <span className="report-header-badge">PROJE NO: TR51/25/İKT_TD/0041</span>
+          <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '12px', lineHeight: 1.25 }}>
+            Dijital Kültür Rotaları (Geçmişten Geleceğe Kültürüyle Ankara)
+          </h2>
+          <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '840px', marginBottom: '24px', lineHeight: 1.6 }}>
+            Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitim alan 230 sertifikalı öğretmenimiz tarafından hazırlanan 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
+          </p>
+          <button className="btn-meb-primary" onClick={onOpenUpload}>
+            {isLoggedIn ? 'Yeni 1 Sayfalık Afiş Yükle' : 'Öğretmen Girişi Yap ve Afiş Yükle'}
+          </button>
         </div>
       </section>
 
       <div className="meb-container">
-        <div className="filter-section">
-          <div className="filter-controls-row">
-            <div className="search-input-wrap">
-              <Search className="search-icon-pos" size={20} />
+        <div className="hero-stats-banner">
+          <div className="stat-item-official">
+            <div className="stat-num-official">230 / 300</div>
+            <div className="stat-lbl-official">Sertifikalı Öğretmen</div>
+          </div>
+          <div className="stat-item-official">
+            <div className="stat-num-official">{cards.length}</div>
+            <div className="stat-lbl-official">Aktif Dijital Afiş</div>
+          </div>
+          <div className="stat-item-official">
+            <div className="stat-num-official">6</div>
+            <div className="stat-lbl-official">Ankara Kültür Rotası</div>
+          </div>
+          <div className="stat-item-official">
+            <div className="stat-num-official">%76.6</div>
+            <div className="stat-lbl-official">Tamamlanma Oranı</div>
+          </div>
+        </div>
+
+        <div className="filter-section-official">
+          <div className="filter-row-top">
+            <div className="official-search-bar" style={{ maxWidth: '100%' }}>
+              <Search className="official-search-icon" size={18} />
               <input
                 type="text"
+                className="official-search-input"
                 placeholder="Afiş başlığı, öğretmen adı, okul veya etiket ile arayınız..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -114,30 +112,29 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Filter size={18} color="#6b7280" />
+              <Filter size={18} color="#64748b" />
               <select
-                className="select-custom"
+                className="form-control"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'newest' | 'views')}
-                style={{ width: '100%' }}
               >
                 <option value="newest">En Yeniler İlk</option>
-                <option value="views">En Çok İncelelenler</option>
+                <option value="views">En Çok İncelenenler</option>
               </select>
             </div>
 
             <div>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#4b5563' }}>
-                Toplam {filteredCards.length} Afiş Bulundu
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#475569' }}>
+                Toplam {filteredCards.length} Afiş
               </span>
             </div>
           </div>
 
-          <div className="routes-pills-flex">
+          <div className="official-pills-row">
             {routeCategoriesList.map((route) => (
               <button
                 key={route}
-                className={`pill-btn ${selectedRoute === route ? 'active' : ''}`}
+                className={`pill-official ${selectedRoute === route ? 'active' : ''}`}
                 onClick={() => setSelectedRoute(route)}
               >
                 {route}
@@ -147,54 +144,56 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
         </div>
 
         {filteredCards.length === 0 ? (
-          <div style={{ backgroundColor: '#ffffff', padding: '60px', textAlign: 'center', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-            <h4 style={{ fontSize: '18px', color: '#374151', marginBottom: '8px' }}>Arama Kriterlerine Uygun Dijital Afiş Bulunamadı</h4>
-            <p style={{ color: '#6b7280', fontSize: '14px' }}>Farklı bir arama kelimesi veya rota kategorisi seçmeyi deneyiniz.</p>
+          <div style={{ backgroundColor: '#ffffff', padding: '60px', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontSize: '18px', color: '#0f172a', marginBottom: '8px' }}>Arama Kriterlerine Uygun Dijital Afiş Bulunamadı</h4>
+            <p style={{ color: '#64748b', fontSize: '14px' }}>Farklı bir arama kelimesi veya rota kategorisi seçmeyi deneyiniz.</p>
           </div>
         ) : (
-          <div className="cards-grid">
+          <div className="cards-grid-official">
             {filteredCards.map((card) => (
-              <div key={card.id} className="story-card">
-                <div className="card-img-wrap">
+              <div key={card.id} className="story-card-official">
+                <div className="card-top-dashed"></div>
+                <div className="card-img-wrap-official">
                   <img src={card.imageUrl} alt={card.title} />
-                  <span className="route-badge">{card.routeCategory}</span>
+                  <span className="badge-route-official">{card.routeCategory}</span>
                 </div>
 
-                <div className="card-body">
-                  <h3 className="card-title">{card.title}</h3>
-                  <div className="card-author-info">
+                <div className="card-content-official">
+                  <h3 className="card-title-official">{card.title}</h3>
+                  <div className="card-author-official">
                     <UserCheck size={16} />
                     <span>{card.authorName} - {card.authorSchool}</span>
                   </div>
 
-                  <p className="card-desc">{card.description}</p>
+                  <p className="card-desc-official">{card.description}</p>
 
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
                     {card.tags.slice(0, 3).map((tag, idx) => (
-                      <span key={idx} style={{ backgroundColor: '#f3f4f6', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', color: '#4b5563', fontWeight: 500 }}>
+                      <span key={idx} style={{ backgroundColor: '#f1f5f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', color: '#475569', fontWeight: 600 }}>
                         #{tag}
                       </span>
                     ))}
                   </div>
 
-                  <div className="card-footer-meta">
+                  <div className="card-footer-official">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <MapPin size={14} />
                       <span>{card.district}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Eye size={14} />
-                      <span>{card.viewsCount} Görüntülenme</span>
+                      <span>{card.viewsCount} İnceleme</span>
                     </div>
                   </div>
 
-                  <div className="card-action-bar">
-                    <button 
+                  <div style={{ marginTop: '16px' }}>
+                    <button
                       className="btn-meb-primary"
+                      style={{ width: '100%', justifyContent: 'center' }}
                       onClick={() => handleCardClick(card)}
                     >
                       <BookOpen size={16} />
-                      <span>Afişi İncele</span>
+                      <span>1 Sayfalık Kartı İncele</span>
                     </button>
                   </div>
                 </div>
@@ -224,11 +223,11 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginBottom: '20px' }}>
                 <button className="btn-meb-outline" onClick={handlePrintSimulation}>
-                  <Printer size={18} />
+                  <Printer size={17} />
                   <span>Afişi Yazdır</span>
                 </button>
                 <button className="btn-meb-primary" onClick={handlePrintSimulation}>
-                  <Download size={18} />
+                  <Download size={17} />
                   <span>1 Sayfalık Kartı İndir (PDF)</span>
                 </button>
               </div>
@@ -253,8 +252,8 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
               </div>
 
               <div style={{ marginTop: '20px' }}>
-                <h4 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#1f2937' }}>
-                  AFİŞ İÇERİĞİ VE EĞİTSEL ÖZETİ
+                <h4 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '8px', color: '#0f172a' }}>
+                  AFİŞ İÇERİĞİ VE KÜLTÜREL ÖZETİ
                 </h4>
                 <p className="report-text-block">
                   {selectedCardForModal.description}
@@ -263,7 +262,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {selectedCardForModal.tags.map((tg, i) => (
-                  <span key={i} style={{ backgroundColor: '#fff0f2', border: '1px solid #f5c2c7', color: '#c8102e', fontSize: '12px', padding: '4px 10px', borderRadius: '4px', fontWeight: 600 }}>
+                  <span key={i} style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#e30613', fontSize: '12px', padding: '4px 10px', borderRadius: '4px', fontWeight: 700 }}>
                     #{tg}
                   </span>
                 ))}
