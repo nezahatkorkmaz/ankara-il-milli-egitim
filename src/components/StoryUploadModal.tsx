@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, DigitalStoryCard, RouteCategory } from '../types';
-import { X, UploadCloud, CheckCircle2 } from 'lucide-react';
+import { X, UploadCloud, CheckCircle2, GraduationCap, Image as ImageIcon, MapPin, Tag, FileText, Sparkles, RefreshCw } from 'lucide-react';
 
 interface StoryUploadModalProps {
   isOpen: boolean;
@@ -79,12 +79,17 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container large">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-container large" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <UploadCloud size={24} color="#e30613" />
-            <h3 className="modal-title">Yeni 1 Sayfalık Dijital Afiş & Bilgi Kartı Yükleme</h3>
+            <div style={{ padding: '8px', backgroundColor: 'var(--meb-red-light)', borderRadius: '6px', color: 'var(--meb-red)' }}>
+              <UploadCloud size={22} />
+            </div>
+            <div>
+              <h3 className="modal-title">Yeni 1 Sayfalık Dijital Afiş & Bilgi Kartı Yükleme</h3>
+              <div style={{ fontSize: '12px', color: '#64748b' }}>Ankara Dijital Kültür Rotaları Eğitimi Modülü</div>
+            </div>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
             <X size={20} />
@@ -92,15 +97,30 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
         </div>
 
         <div className="modal-body">
-          <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#e30613' }}>
-            <strong>Yükleyen Öğretmen:</strong> {currentUser.name} ({currentUser.school} - {currentUser.branch})
+          {/* Teacher Profile Banner */}
+          <div className="teacher-info-banner-modern">
+            <div className="teacher-avatar-circle">
+              <GraduationCap size={22} />
+            </div>
+            <div>
+              <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#0f172a' }}>
+                {currentUser.name}
+              </div>
+              <div style={{ fontSize: '12.5px', color: '#475569', fontWeight: 500 }}>
+                {currentUser.school} &bull; <span style={{ color: 'var(--meb-red)', fontWeight: 600 }}>{currentUser.branch}</span>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div>
-                <div className="form-group">
-                  <label>AFİŞ / HİKAYE BAŞLIĞI</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '20px' }}>
+              {/* Left Column - Form Inputs */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Sparkles size={14} color="var(--meb-red)" />
+                    AFİŞ / HİKAYE BAŞLIĞI
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -110,8 +130,11 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>ANKARA KÜLTÜR ROTASI KATEGORİSİ</label>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <MapPin size={14} color="var(--meb-red)" />
+                    ANKARA KÜLTÜR ROTASI KATEGORİSİ
+                  </label>
                   <select
                     className="form-control"
                     value={routeCategory}
@@ -126,7 +149,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group">
+                  <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>İLÇE / KONUM</label>
                     <input
                       type="text"
@@ -137,7 +160,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>HEDEF SINIF / SEVİYE</label>
                     <select
                       className="form-control"
@@ -152,8 +175,11 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>ETİKETLER (VİRGÜL İLE AYIRINIZ)</label>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Tag size={14} color="var(--meb-red)" />
+                    ETİKETLER (VİRGÜL İLE AYIRINIZ)
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -164,40 +190,59 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 </div>
               </div>
 
+              {/* Right Column - Visual Upload & Preview Card */}
               <div>
-                <div className="form-group">
-                  <label>DİJİTAL AFİŞ GÖRSELİ VEYA TASARIM GÖRSELİ</label>
-                  <div className="file-dropzone" onClick={() => document.getElementById('poster-file-input')?.click()} style={{ border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '24px', textAlign: 'center', cursor: 'pointer', backgroundColor: '#f8fafc' }}>
-                    <UploadCloud size={36} color="#e30613" style={{ margin: '0 auto 10px' }} />
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
-                      Dijital Afiş / Bilgi Kartı Görseli Yüklemek İçin Tıklayın
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      PNG, JPG veya WEBP (1 Sayfalık Görsel Afiş)
-                    </div>
-                    <input
-                      id="poster-file-input"
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={handleSimulatedImageUpload}
-                    />
-                  </div>
-                </div>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#0f172a', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  DİJİTAL AFİŞ VEYA TASARIM GÖRSELİ
+                </label>
 
-                {imageUrl && (
-                  <div className="poster-preview-box" style={{ marginTop: '12px' }}>
-                    <img src={imageUrl} alt="Afiş Önizleme" style={{ maxHeight: '220px', objectFit: 'contain' }} />
-                    <div style={{ padding: '8px 12px', fontSize: '12px', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-                      <CheckCircle2 size={16} /> Görsel Yüklendi ve Hazır
+                {imageUrl ? (
+                  <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+                    <div style={{ position: 'relative', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', marginBottom: '10px' }}>
+                      <img src={imageUrl} alt="Afiş Önizleme" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }} />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <CheckCircle2 size={16} /> Görsel Hazır
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-meb-outline"
+                        style={{ padding: '4px 10px', fontSize: '12px' }}
+                        onClick={() => document.getElementById('poster-file-input')?.click()}
+                      >
+                        <RefreshCw size={12} /> Görseli Değiştir
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="upload-zone-modern" onClick={() => document.getElementById('poster-file-input')?.click()}>
+                    <UploadCloud size={40} color="var(--meb-red)" style={{ margin: '0 auto 10px' }} />
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                      Görsel Yüklemek İçin Tıklayın
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                      PNG, JPG veya WEBP (1 Sayfalık Görsel Afiş)
                     </div>
                   </div>
                 )}
+
+                <input
+                  id="poster-file-input"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleSimulatedImageUpload}
+                />
               </div>
             </div>
 
+            {/* Description Textarea */}
             <div className="form-group">
-              <label>DİJİTAL HİKAYE ÖZETİ VE AKADEMİK / KÜLTÜREL AÇIKLAMA</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FileText size={14} color="var(--meb-red)" />
+                DİJİTAL HİKAYE ÖZETİ VE AKADEMİK / KÜLTÜREL AÇIKLAMA
+              </label>
               <textarea
                 className="form-control"
                 rows={4}
@@ -208,17 +253,18 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
             </div>
 
             {validationError && (
-              <div style={{ color: '#e30613', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>
+              <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '10px 14px', color: '#e30613', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>
                 {validationError}
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
               <button type="button" className="btn-meb-outline" onClick={onClose}>
                 İptal
               </button>
               <button type="submit" className="btn-meb-primary">
-                Sisteme Yükle ve Yayınla
+                <UploadCloud size={16} />
+                <span>Sisteme Yükle ve Yayınla</span>
               </button>
             </div>
           </form>

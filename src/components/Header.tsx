@@ -145,12 +145,9 @@ export const Header: React.FC<HeaderProps> = ({
                     <UserIcon size={14} />
                     <span>{currentUser.name}</span>
                   </div>
-                  <button className="btn-meb-primary" onClick={onOpenUploadModal}>
-                    <PlusCircle size={14} />
-                    <span>Afiş Yükle</span>
-                  </button>
-                  <button className="btn-meb-outline" onClick={onLogout} title="Çıkış">
+                  <button className="btn-meb-outline" onClick={onLogout} title="Çıkış Yapt">
                     <LogOut size={14} />
+                    <span>Çıkış</span>
                   </button>
                 </>
               ) : (

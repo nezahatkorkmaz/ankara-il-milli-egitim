@@ -16,7 +16,8 @@ export const Footer: React.FC = () => {
             <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
                 <div className="link-card-logo-wrap">
-                  <span style={{ color: '#e30613', fontWeight: 800, fontSize: '18px', fontFamily: 'var(--font-family)' }}>AnkBis</span>
+                  <img src="/logos/ankbis.png" alt="AnkBis Logo" className="card-logo-img" />
+                  <span className="link-card-title">AnkBis</span>
                 </div>
                 <span className="link-card-dots">...</span>
               </div>
@@ -27,7 +28,7 @@ export const Footer: React.FC = () => {
             <a href="https://okulsagligi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
                 <div className="link-card-logo-wrap">
-                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="Okul Sağlığı Logo" className="card-logo-img" />
+                  <img src="/logos/okul-sagligi.png" alt="Okul Sağlığı Logo" className="card-logo-img" />
                   <span className="link-card-title">Okul Sağlığı</span>
                 </div>
                 <span className="link-card-dots">...</span>
@@ -39,7 +40,7 @@ export const Footer: React.FC = () => {
             <a href="https://fatihprojesi.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
                 <div className="link-card-logo-wrap">
-                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="f@tih Projesi Logo" className="card-logo-img" />
+                  <img src="/logos/fatih-logo.png" alt="f@tih Projesi Logo" className="card-logo-img" style={{ height: '30px' }} />
                   <span className="link-card-title">f@tih Projesi</span>
                 </div>
                 <span className="link-card-dots">...</span>
@@ -51,7 +52,7 @@ export const Footer: React.FC = () => {
             <a href="https://isg.meb.gov.tr" target="_blank" rel="noreferrer" className="official-link-card">
               <div className="link-card-top">
                 <div className="link-card-logo-wrap">
-                  <img src="https://www.meb.gov.tr/assets/img/meblogo.png" alt="İş Sağlığı ve Güvenliği Logo" className="card-logo-img" />
+                  <img src="/logos/is-guvenligi.png" alt="İş Sağlığı ve Güvenliği Logo" className="card-logo-img" />
                   <span className="link-card-title">İş Sağlığı Güvenliği</span>
                 </div>
                 <span className="link-card-dots">...</span>
@@ -63,7 +64,7 @@ export const Footer: React.FC = () => {
             <a href="http://www.meb.gov.tr/duyurular/duyurular2012/basinmus/mebim.php" target="_blank" rel="noreferrer" className="official-link-card" style={{ borderColor: '#fecaca', backgroundColor: '#fff5f5' }}>
               <div className="link-card-top">
                 <div className="link-card-logo-wrap">
-                  <img src="https://www.meb.gov.tr/assets/img/mebimlogo.png" alt="MEBİM 444 0 632" className="card-logo-img" style={{ height: '24px' }} />
+                  <img src="/logos/meb-iletisim.png" alt="MEBİM 444 0 632" className="card-logo-img" style={{ height: '30px' }} />
                   <span className="link-card-title" style={{ color: '#e30613' }}>MEBİM</span>
                 </div>
                 <span className="link-card-dots">...</span>
@@ -127,7 +128,7 @@ export const Footer: React.FC = () => {
 
           <div className="mebim-real-banner">
             <img
-              src="https://www.meb.gov.tr/assets/img/mebimlogo.png"
+              src="/logos/meb-iletisim.png"
               alt="MEBİM 444 0 632 Logo"
               className="mebim-real-img"
             />

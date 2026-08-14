@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/myriad-pro');
+
 :root {
   --meb-red: #e30613;
   --meb-red-dark: #c8102e;
@@ -10,17 +12,15 @@
   --meb-border: #e2e8f0;
   --meb-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --meb-shadow-hover: 0 10px 25px -5px rgba(227, 6, 19, 0.12), 0 8px 10px -6px rgba(227, 6, 19, 0.1);
-  --font-family: 'Myriad Pro', 'Myriad', 'PT Sans', 'Open Sans', system-ui, -apple-system, sans-serif;
+  --font-family: 'MYRIAD PRO', 'Myriad Pro', 'Myriad', sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*, *::before, *::after, body, input, button, select, textarea, label, h1, h2, h3, h4, h5, h6, p, span, div, a {
+  font-family: 'MYRIAD PRO', 'Myriad Pro', 'Myriad', sans-serif !important;
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-family) !important;
   background-color: #ffffff;
   color: var(--meb-text-dark);
   line-height: 1.5;
@@ -1073,4 +1073,154 @@ textarea.form-control {
   .hero-stats-banner {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Modern Modal & Upload UI Refinements */
+.teacher-info-banner-modern {
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid var(--meb-red);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.teacher-avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--meb-red-light);
+  border: 1px solid var(--meb-red-border);
+  color: var(--meb-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.upload-zone-modern {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.upload-zone-modern:hover {
+  border-color: var(--meb-red);
+  background-color: #fff5f5;
+}
+
+.poster-display-container {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  margin-bottom: 20px;
+}
+
+.poster-display-container img {
+  max-height: 520px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.meta-grid-modern {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.meta-card-modern {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.meta-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+  color: var(--meb-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.full-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.full-preview-img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Input Icon Group Styles */
+.input-icon-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-wrapper .input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.input-icon-wrapper .form-control {
+  padding-left: 38px !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { DigitalStoryCard, RouteCategory } from '../types';
-import { Search, Filter, Eye, Download, Printer, MapPin, UserCheck, BookOpen, X } from 'lucide-react';
+import { Search, Filter, Eye, Download, Printer, MapPin, UserCheck, BookOpen, X, Maximize2, Share2, Building, GraduationCap, Check } from 'lucide-react';
 
 interface CardGalleryProps {
   cards: DigitalStoryCard[];
@@ -29,6 +29,8 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
   const [selectedRoute, setSelectedRoute] = useState<RouteCategory | 'Tümü'>('Tümü');
   const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
   const [selectedCardForModal, setSelectedCardForModal] = useState<DigitalStoryCard | null>(null);
+  const [isFullScreenPosterOpen, setIsFullScreenPosterOpen] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const filteredCards = useMemo(() => {
     return cards
@@ -59,6 +61,15 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
   const handlePrintSimulation = () => {
     window.print();
+  };
+
+  const handleCopyLink = () => {
+    if (selectedCardForModal) {
+      const shareUrl = `${window.location.origin}/#card-${selectedCardForModal.id}`;
+      navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
   };
 
   return (
@@ -223,6 +234,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
         )}
       </div>
 
+      {/* Card Detail Modal */}
       {selectedCardForModal && (
         <div className="modal-overlay" onClick={() => setSelectedCardForModal(null)}>
           <div className="modal-container large" onClick={(e) => e.stopPropagation()}>
@@ -237,42 +249,107 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
             </div>
 
             <div className="modal-body">
-              <div className="poster-preview-box">
+              {/* Poster Showcase */}
+              <div className="poster-display-container">
                 <img src={selectedCardForModal.imageUrl} alt={selectedCardForModal.title} />
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                <button className="btn-meb-outline" onClick={handlePrintSimulation}>
-                  <Printer size={17} />
-                  <span>Afişi Yazdır</span>
+                <button
+                  onClick={() => setIsFullScreenPosterOpen(true)}
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    backdropFilter: 'blur(4px)',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="Tam Ekran İncele"
+                >
+                  <Maximize2 size={15} />
+                  <span>Büyüt / Tam Ekran Gör</span>
                 </button>
-                <button className="btn-meb-primary" onClick={handlePrintSimulation}>
-                  <Download size={17} />
-                  <span>1 Sayfalık Kartı İndir (PDF)</span>
-                </button>
               </div>
 
-              <div className="poster-meta-grid">
-                <div>
-                  <div className="meta-item-label">HAZIRLAYAN ÖĞRETMEN</div>
-                  <div className="meta-item-val">{selectedCardForModal.authorName}</div>
+              {/* Primary Actions Bar */}
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: '13px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Eye size={16} color="var(--meb-red)" />
+                  <span>Bu afiş <strong>{selectedCardForModal.viewsCount}</strong> kez incelendi</span>
                 </div>
-                <div>
-                  <div className="meta-item-label">GÖREV YAPTIĞI KURUM</div>
-                  <div className="meta-item-val">{selectedCardForModal.authorSchool}</div>
-                </div>
-                <div>
-                  <div className="meta-item-label">KÜLTÜR ROTASI & İLÇE</div>
-                  <div className="meta-item-val">{selectedCardForModal.routeCategory} ({selectedCardForModal.district})</div>
-                </div>
-                <div>
-                  <div className="meta-item-label">HEDEF ÖĞRENCI SEVİYESİ</div>
-                  <div className="meta-item-val">{selectedCardForModal.targetLevel}</div>
+
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button className="btn-meb-outline" onClick={handleCopyLink}>
+                    {copiedLink ? <Check size={16} color="#16a34a" /> : <Share2 size={16} />}
+                    <span>{copiedLink ? 'Bağlantı Kopyalandı!' : 'Bağlantıyı Paylaş'}</span>
+                  </button>
+                  <button className="btn-meb-outline" onClick={handlePrintSimulation}>
+                    <Printer size={16} />
+                    <span>Afişi Yazdır</span>
+                  </button>
+                  <button className="btn-meb-primary" onClick={handlePrintSimulation}>
+                    <Download size={16} />
+                    <span>1 Sayfalık Kartı İndir (PDF)</span>
+                  </button>
                 </div>
               </div>
 
+              {/* Metadata Cards Grid */}
+              <div className="meta-grid-modern">
+                <div className="meta-card-modern">
+                  <div className="meta-icon-wrap">
+                    <UserCheck size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>HAZIRLAYAN ÖĞRETMEN</div>
+                    <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{selectedCardForModal.authorName}</div>
+                  </div>
+                </div>
+
+                <div className="meta-card-modern">
+                  <div className="meta-icon-wrap">
+                    <Building size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>GÖREV YAPTIĞI KURUM</div>
+                    <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{selectedCardForModal.authorSchool}</div>
+                  </div>
+                </div>
+
+                <div className="meta-card-modern">
+                  <div className="meta-icon-wrap">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>KÜLTÜR ROTASI & İLÇE</div>
+                    <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
+                      {selectedCardForModal.routeCategory} <span style={{ color: 'var(--meb-red)', fontWeight: 600 }}>({selectedCardForModal.district})</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="meta-card-modern">
+                  <div className="meta-icon-wrap">
+                    <GraduationCap size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>HEDEF ÖĞRENCİ SEVİYESİ</div>
+                    <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>{selectedCardForModal.targetLevel}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cultural Summary */}
               <div style={{ marginTop: '20px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px', color: '#0f172a' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#0f172a', letterSpacing: '0.2px' }}>
                   AFİŞ İÇERİĞİ VE KÜLTÜREL ÖZETİ
                 </h4>
                 <p className="report-text-block">
@@ -280,15 +357,48 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
                 </p>
               </div>
 
+              {/* Tags Chips */}
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {selectedCardForModal.tags.map((tg, i) => (
-                  <span key={i} style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#e30613', fontSize: '12px', padding: '4px 10px', borderRadius: '4px', fontWeight: 700 }}>
+                  <span key={i} style={{ backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', color: '#334155', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: 600 }}>
                     #{tg}
                   </span>
                 ))}
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Full Screen Image Lightbox Modal */}
+      {isFullScreenPosterOpen && selectedCardForModal && (
+        <div className="full-preview-overlay" onClick={() => setIsFullScreenPosterOpen(false)}>
+          <button
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              backgroundColor: '#ffffff',
+              color: '#0f172a',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+            onClick={() => setIsFullScreenPosterOpen(false)}
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={selectedCardForModal.imageUrl}
+            alt={selectedCardForModal.title}
+            className="full-preview-img"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>

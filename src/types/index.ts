@@ -1,8 +1,10 @@
 export interface User {
   id: string;
   name: string;
-  tcNo: string;
+  tcNo?: string;
   email: string;
+  phone: string;
+  birthDate: string;
   role: 'teacher' | 'admin';
   school: string;
   branch: string;
