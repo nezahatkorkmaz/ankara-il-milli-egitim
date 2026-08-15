@@ -8,6 +8,7 @@ import { ProjectReportView } from './components/ProjectReportView';
 import { LoginModal } from './components/LoginModal';
 import { StoryUploadModal } from './components/StoryUploadModal';
 import { TeacherProfileModal } from './components/TeacherProfileModal';
+import { Toast, ToastMessage } from './components/Toast';
 import { fetchStoriesFromFirestore } from './firebase';
 
 export const App: React.FC = () => {
@@ -36,9 +37,23 @@ export const App: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'gallery' | 'report'>('gallery');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const id = Date.now().toString() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3500);
+  };
+
+  const handleDismissToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Fetch live stories from Firestore on page load
   useEffect(() => {
@@ -75,10 +90,12 @@ export const App: React.FC = () => {
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
+    addToast(`Hoş geldiniz Sayın ${user.name}! Öğretmen girişi başarılı.`, 'success');
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    addToast('Öğretmen oturumu kapatıldı.', 'info');
   };
 
   const handleCardViewCountIncrement = (cardId: string) => {
@@ -92,11 +109,13 @@ export const App: React.FC = () => {
   const handleUploadSuccess = (newCard: DigitalStoryCard) => {
     setCards((prevCards) => [newCard, ...prevCards]);
     setActiveTab('gallery');
+    addToast('1 sayfalık dijital kültür afişiniz başarıyla yayınlandı!', 'success');
   };
 
   const handleOpenUploadModal = () => {
     if (!currentUser) {
       setIsLoginModalOpen(true);
+      addToast('Afiş yükleyebilmek için lütfen öğretmen girişi yapınız.', 'info');
     } else {
       setIsUploadModalOpen(true);
     }
@@ -104,20 +123,32 @@ export const App: React.FC = () => {
 
   const handleProfileUpdate = (updatedUser: User) => {
     setCurrentUser(updatedUser);
+    addToast('Profil bilgileriniz güncellendi.', 'success');
   };
 
   const handleDeleteStory = (storyId: string) => {
     setCards((prev) => prev.filter((c) => c.id !== storyId));
+    addToast('Afiş portalımızdan silindi.', 'info');
   };
 
   const handleUpdateStory = (updatedStory: DigitalStoryCard) => {
     setCards((prev) =>
       prev.map((c) => (c.id === updatedStory.id ? updatedStory : c))
     );
+    addToast('Afiş bilgileri başarıyla güncellendi.', 'success');
+  };
+
+  const handleSearchFromHeader = (query: string) => {
+    setSearchQuery(query);
+    if (activeTab !== 'gallery') {
+      setActiveTab('gallery');
+    }
   };
 
   return (
     <div className="site-page-wrapper">
+      <Toast toasts={toasts} onDismiss={handleDismissToast} />
+
       <Header
         currentUser={currentUser}
         activeTab={activeTab}
@@ -126,6 +157,8 @@ export const App: React.FC = () => {
         onOpenUploadModal={handleOpenUploadModal}
         onOpenProfileModal={() => setIsProfileModalOpen(true)}
         onLogout={handleLogout}
+        searchQuery={searchQuery}
+        setSearchQuery={handleSearchFromHeader}
       />
 
       <main style={{ flexGrow: 1 }}>
@@ -135,6 +168,9 @@ export const App: React.FC = () => {
             onCardView={handleCardViewCountIncrement}
             onOpenUpload={handleOpenUploadModal}
             isLoggedIn={!!currentUser}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onAddToast={addToast}
           />
         ) : (
           <ProjectReportView />

@@ -7,6 +7,9 @@ interface CardGalleryProps {
   onCardView: (cardId: string) => void;
   onOpenUpload: () => void;
   isLoggedIn: boolean;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
+  onAddToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 const routeCategoriesList: (RouteCategory | 'Tümü')[] = [
@@ -24,8 +27,10 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
   onCardView,
   onOpenUpload,
   isLoggedIn,
+  searchQuery = '',
+  setSearchQuery,
+  onAddToast,
 }) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRoute, setSelectedRoute] = useState<RouteCategory | 'Tümü'>('Tümü');
   const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
   const [selectedCardForModal, setSelectedCardForModal] = useState<DigitalStoryCard | null>(null);
@@ -63,11 +68,31 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
     window.print();
   };
 
+  const handleDownloadPoster = () => {
+    if (selectedCardForModal?.imageUrl) {
+      const link = document.createElement('a');
+      link.href = selectedCardForModal.imageUrl;
+      link.download = `${selectedCardForModal.title.replace(/\s+/g, '_')}_MEB_Afis.jpg`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      if (onAddToast) {
+        onAddToast('Yüksek çözünürlüklü dijital afiş indirme işlemi başlatıldı.', 'success');
+      }
+    } else {
+      window.print();
+    }
+  };
+
   const handleCopyLink = () => {
     if (selectedCardForModal) {
       const shareUrl = `${window.location.origin}/#card-${selectedCardForModal.id}`;
       navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
+      if (onAddToast) {
+        onAddToast('Afiş bağlantısı panoya kopyalandı.', 'success');
+      }
       setTimeout(() => setCopiedLink(false), 2500);
     }
   };
@@ -138,7 +163,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
                 className="official-search-input"
                 placeholder="Afiş başlığı, öğretmen adı, okul veya etiket ile arayınız..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
               />
             </div>
 
@@ -182,7 +207,12 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
         ) : (
           <div className="cards-grid-official">
             {filteredCards.map((card) => (
-              <div key={card.id} className="story-card-official">
+              <div
+                key={card.id}
+                className="story-card-official"
+                onClick={() => handleCardClick(card)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="card-top-dashed"></div>
                 <div className="card-img-wrap-official">
                   <img src={card.imageUrl} alt={card.title} />
@@ -296,9 +326,9 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
                     <Printer size={16} />
                     <span>Afişi Yazdır</span>
                   </button>
-                  <button className="btn-meb-primary" onClick={handlePrintSimulation}>
+                  <button className="btn-meb-primary" onClick={handleDownloadPoster}>
                     <Download size={16} />
-                    <span>1 Sayfalık Kartı İndir (PDF)</span>
+                    <span>1 Sayfalık Kartı İndir (Görsel / PDF)</span>
                   </button>
                 </div>
               </div>
