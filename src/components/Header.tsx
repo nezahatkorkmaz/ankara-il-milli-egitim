@@ -1,6 +1,6 @@
 import React from 'react';
 import { User } from '../types';
-import { LogIn, LogOut, PlusCircle, Search, User as UserIcon } from 'lucide-react';
+import { LogIn, LogOut, Search, User as UserIcon, Layers } from 'lucide-react';
 
 interface HeaderProps {
   currentUser: User | null;
@@ -8,6 +8,7 @@ interface HeaderProps {
   setActiveTab: (tab: 'gallery' | 'report') => void;
   onOpenLoginModal: () => void;
   onOpenUploadModal: () => void;
+  onOpenProfileModal: () => void;
   onLogout: () => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   onOpenLoginModal,
   onOpenUploadModal,
+  onOpenProfileModal,
   onLogout,
   searchQuery = '',
   setSearchQuery,
@@ -141,11 +143,50 @@ export const Header: React.FC<HeaderProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {currentUser ? (
                 <>
-                  <div className="user-badge-header">
-                    <UserIcon size={14} />
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      fontSize: '13px', 
+                      fontWeight: 700, 
+                      color: '#0f172a',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      padding: '5px 12px',
+                      borderRadius: '20px',
+                      fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif"
+                    }}
+                  >
+                    <UserIcon size={14} color="var(--meb-red)" />
                     <span>{currentUser.name}</span>
                   </div>
-                  <button className="btn-meb-outline" onClick={onLogout} title="Çıkış Yapt">
+
+                  <button
+                    type="button"
+                    onClick={onOpenProfileModal}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      fontSize: '12.5px', 
+                      fontWeight: 700, 
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
+                      border: '1px solid var(--meb-red)',
+                      color: 'var(--meb-red)',
+                      backgroundColor: 'var(--meb-red-light)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    title="Öğretmen Profilim ve Yüklediğim Afişleri Gör"
+                  >
+                    <Layers size={14} />
+                    <span>Profilim & Afişlerim</span>
+                  </button>
+
+                  <button className="btn-meb-outline" onClick={onLogout} title="Çıkış Yap" style={{ padding: '5px 10px', fontSize: '12.5px' }}>
                     <LogOut size={14} />
                     <span>Çıkış</span>
                   </button>

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { User, DigitalStoryCard } from './types';
-import { defaultMockUsers, sampleDigitalCards } from './data/initialData';
+import { sampleDigitalCards } from './data/initialData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CardGallery } from './components/CardGallery';
 import { ProjectReportView } from './components/ProjectReportView';
 import { LoginModal } from './components/LoginModal';
 import { StoryUploadModal } from './components/StoryUploadModal';
+import { TeacherProfileModal } from './components/TeacherProfileModal';
+import { fetchStoriesFromFirestore } from './firebase';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -15,10 +17,10 @@ export const App: React.FC = () => {
       try {
         return JSON.parse(savedUser);
       } catch (e) {
-        return defaultMockUsers[0];
+        return null;
       }
     }
-    return defaultMockUsers[0];
+    return null;
   });
 
   const [cards, setCards] = useState<DigitalStoryCard[]>(() => {
@@ -36,6 +38,28 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'gallery' | 'report'>('gallery');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+
+  // Fetch live stories from Firestore on page load
+  useEffect(() => {
+    const loadLiveStories = async () => {
+      try {
+        const firestoreStories = await fetchStoriesFromFirestore();
+        if (firestoreStories && firestoreStories.length > 0) {
+          // Merge unique firestore stories with initial sample cards
+          setCards((prev) => {
+            const firestoreIds = new Set(firestoreStories.map((s) => s.id));
+            const existingNonFirestore = prev.filter((c) => !firestoreIds.has(c.id));
+            return [...firestoreStories, ...existingNonFirestore];
+          });
+        }
+      } catch (err) {
+        console.warn('Live stories fetch notice:', err);
+      }
+    };
+
+    loadLiveStories();
+  }, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -86,6 +110,7 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
         onOpenUploadModal={handleOpenUploadModal}
+        onOpenProfileModal={() => setIsProfileModalOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -111,12 +136,22 @@ export const App: React.FC = () => {
       />
 
       {currentUser && (
-        <StoryUploadModal
-          isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
-          currentUser={currentUser}
-          onUploadSuccess={handleUploadSuccess}
-        />
+        <>
+          <StoryUploadModal
+            isOpen={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
+            currentUser={currentUser}
+            onUploadSuccess={handleUploadSuccess}
+          />
+
+          <TeacherProfileModal
+            isOpen={isProfileModalOpen}
+            onClose={() => setIsProfileModalOpen(false)}
+            currentUser={currentUser}
+            teacherStories={cards}
+            onOpenUploadModal={handleOpenUploadModal}
+          />
+        </>
       )}
     </div>
   );
