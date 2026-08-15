@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User } from '../types';
-import { LogIn, LogOut, Search, User as UserIcon, Layers, Menu, X } from 'lucide-react';
+import { LogIn, LogOut, Search, User as UserIcon, Layers, Menu, X, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
 
 interface HeaderProps {
   currentUser: User | null;
@@ -34,45 +34,40 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header>
+      {/* 1. Üst Kırmızı Bant */}
       <div className="top-red-bar">
         <div className="meb-container">
           <div className="top-red-flex">
             <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer" className="top-red-title">
               ANKARA İL MİLLÎ EĞİTİM MÜDÜRLÜĞÜ
             </a>
+            <div className="top-red-watermark-pattern"></div>
+          </div>
+        </div>
+      </div>
 
-            <div className="top-red-right">
-              <div className="social-icons-row">
-                <a href="https://facebook.com/tcmeb" target="_blank" rel="noreferrer" className="social-icon-btn">f</a>
-                <a href="https://x.com/tcmeb" target="_blank" rel="noreferrer" className="social-icon-btn">X</a>
-                <a href="https://instagram.com/tcmeb" target="_blank" rel="noreferrer" className="social-icon-btn">in</a>
-                <a href="https://youtube.com/tcmeb" target="_blank" rel="noreferrer" className="social-icon-btn">YT</a>
-                <span style={{ opacity: 0.5, fontSize: '11px' }}>|</span>
-                <a href="https://meb.gov.tr" target="_blank" rel="noreferrer" className="social-icon-btn">N</a>
-              </div>
+      {/* 2. Sosyal Medya ve Alt Linkler Bandı (Orijinal MEB düzeni) */}
+      <div className="top-sub-links-bar">
+        <div className="meb-container">
+          <div className="top-sub-links-flex">
+            <div className="top-links-left">
+              <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer">Anasayfa</a>
+              <span className="slash-sep">/</span>
+              <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer">RSS</a>
+            </div>
 
-              <a href="https://meb.gov.tr/ataturk" target="_blank" rel="noreferrer">
-                <img
-                  src="https://www.meb.gov.tr/assets/img/ataturk.png"
-                  alt="T.C. Atatürk ve Türk Bayrağı"
-                  className="ataturk-real-img"
-                />
-              </a>
+            <div className="social-icons-row-dark">
+              <a href="https://facebook.com/tcmeb" target="_blank" rel="noreferrer" className="social-dark-btn" title="Facebook"><Facebook size={14} /></a>
+              <a href="https://x.com/tcmeb" target="_blank" rel="noreferrer" className="social-dark-btn" title="X (Twitter)"><Twitter size={14} /></a>
+              <a href="https://instagram.com/tcmeb" target="_blank" rel="noreferrer" className="social-dark-btn" title="Instagram"><Instagram size={14} /></a>
+              <a href="https://youtube.com/tcmeb" target="_blank" rel="noreferrer" className="social-dark-btn" title="YouTube"><Youtube size={14} /></a>
+              <a href="https://meb.gov.tr" target="_blank" rel="noreferrer" className="social-dark-btn meb-n-icon" title="MEB Portalı">N</a>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="top-sub-links-bar">
-        <div className="meb-container">
-          <div className="top-links-flex">
-            <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer">Anasayfa</a>
-            <span className="slash-sep">/</span>
-            <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer">RSS</a>
-          </div>
-        </div>
-      </div>
-
+      {/* 3. Ana Resmî Header (Logo + 100. Yıl + Hamburger Menü Butonu) */}
       <div className="meb-header-official">
         <div className="meb-container">
           <div className="official-header-flex">
@@ -84,44 +79,54 @@ export const Header: React.FC<HeaderProps> = ({
               />
             </a>
 
+            <div className="official-header-right-group">
+              <div className="official-quick-apps">
+                <img
+                  src="https://www.meb.gov.tr/assets/img/turkiye.svg"
+                  alt="Türkiye Yüzyılı 100. Yıl Logosu"
+                  className="turkiye-yuzyili-real-img"
+                />
+              </div>
+
+              {/* Orijinal MEB Cihaz Hamburger Menü Butonu */}
+              <button
+                className="official-hamburger-btn"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Navigasyon Menüsünü Aç/Kapat"
+                title="Ana Menü"
+              >
+                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Ekran Ekmek Kırıntısı (Red Breadcrumb Badge) & Mobil Arama Çubuğu */}
+      <div className="sub-header-breadcrumb-bar">
+        <div className="meb-container">
+          <div className="breadcrumb-search-flex">
+            <div className="meb-red-breadcrumb-pill">
+              Anasayfa &gt; {activeTab === 'gallery' ? 'Dijital Afiş Galerisi' : 'Proje Raporu'}
+            </div>
+
             <div className="official-search-bar">
               <Search className="official-search-icon" size={15} />
               <input
                 type="text"
                 className="official-search-input"
-                placeholder="Ara..."
+                placeholder="Afiş veya Rota Ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <div className="official-quick-apps">
-              <img
-                src="https://www.meb.gov.tr/assets/img/turkiye.svg"
-                alt="Türkiye Yüzyılı 100. Yıl Logosu"
-                className="turkiye-yuzyili-real-img"
               />
             </div>
           </div>
         </div>
       </div>
 
+      {/* 5. Navigasyon Çubuğu (Masaüstünde yatay bar, mobilde hamburger ile açılan menü) */}
       <nav className="official-nav-bar">
         <div className="meb-container">
-          <button
-            className="mobile-menu-toggle"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menüyü Aç/Kapat"
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              <span>{isMobileMenuOpen ? 'Menüyü Kapat' : 'Ana Menü'}</span>
-            </span>
-            <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--meb-red)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
-              {activeTab === 'gallery' ? 'Afiş Galerisi' : 'Proje Raporu'}
-            </span>
-          </button>
-
           <div className={`official-nav-flex ${isMobileMenuOpen ? 'open' : ''}`}>
             <ul className="official-nav-ul">
               <li className="official-nav-li">
@@ -200,4 +205,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

@@ -117,10 +117,40 @@ body {
   width: 100%;
 }
 
-.top-links-flex {
+.top-sub-links-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-links-left {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.social-icons-row-dark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-dark-btn {
+  color: #222222;
+  text-decoration: none;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.social-dark-btn:hover {
+  color: var(--meb-red);
+}
+
+.meb-n-icon {
+  font-weight: 800;
+  font-size: 14px;
 }
 
 .top-links-flex a {
@@ -153,6 +183,54 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
+}
+
+.official-header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.official-hamburger-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.official-hamburger-btn:hover {
+  border-color: var(--meb-red);
+  color: var(--meb-red);
+}
+
+.sub-header-breadcrumb-bar {
+  background-color: #ffffff;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.breadcrumb-search-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.meb-red-breadcrumb-pill {
+  background-color: var(--meb-red);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .official-logo-box {
@@ -1117,13 +1195,17 @@ html, body {
   gap: 20px;
 }
 
+.official-hamburger-btn {
+  display: none;
+}
+
 @media (max-width: 992px) {
   .site-page-wrapper {
     margin: 0;
     box-shadow: none;
   }
 
-  .mobile-menu-toggle {
+  .official-hamburger-btn {
     display: flex;
   }
 
@@ -1141,6 +1223,35 @@ html, body {
 
   .official-nav-flex.open {
     display: flex;
+  }
+
+  .official-header-flex {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .real-meb-logo-img {
+    height: 42px;
+    max-width: 170px;
+    object-fit: contain;
+  }
+
+  .turkiye-yuzyili-real-img {
+    height: 26px;
+    object-fit: contain;
+  }
+
+  .official-hamburger-btn {
+    padding: 5px 8px;
+    flex-shrink: 0;
+  }
+
+  .breadcrumb-search-flex {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
   }
 
   .official-nav-ul {
@@ -1194,13 +1305,6 @@ html, body {
   .hero-seal-img {
     width: 200px;
     height: 200px;
-  }
-
-  .official-header-flex {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 14px;
   }
 
   .official-search-bar {
@@ -1315,13 +1419,93 @@ html, body {
   }
 }
 
+.btn-text-mobile {
+  display: none;
+}
+
+.btn-text-desktop {
+  display: inline;
+}
+
 @media (max-width: 640px) {
+  .btn-text-desktop {
+    display: none;
+  }
+
+  .btn-text-mobile {
+    display: inline;
+  }
+
   .projects-flex {
     grid-template-columns: 1fr !important;
   }
 
   .cards-grid-official {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .story-card-official {
+    border-radius: 6px;
+  }
+
+  .card-img-wrap-official {
+    height: 145px;
+  }
+
+  .badge-route-official {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    top: 6px;
+    left: 6px;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-content-official {
+    padding: 10px;
+  }
+
+  .card-title-official {
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 34px;
+  }
+
+  .card-author-official {
+    font-size: 11px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-desc-official {
+    display: none;
+  }
+
+  .card-tags-row {
+    display: none !important;
+  }
+
+  .card-footer-official {
+    font-size: 10.5px;
+    padding-top: 6px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .btn-meb-primary-mobile-compact {
+    padding: 6px 6px !important;
+    font-size: 11.5px !important;
   }
 
   .grid-2col-responsive,

@@ -198,7 +198,7 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
                   <p className="card-desc-official">{card.description}</p>
 
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                  <div className="card-tags-row" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
                     {card.tags.slice(0, 3).map((tag, idx) => (
                       <span key={idx} style={{ backgroundColor: '#f1f5f9', fontSize: '11.5px', padding: '2px 8px', borderRadius: '4px', color: '#475569', fontWeight: 700 }}>
                         #{tag}
@@ -208,23 +208,24 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
 
                   <div className="card-footer-official">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <MapPin size={14} />
+                      <MapPin size={13} />
                       <span>{card.district}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Eye size={14} />
+                      <Eye size={13} />
                       <span>{card.viewsCount} İnceleme</span>
                     </div>
                   </div>
 
-                  <div style={{ marginTop: '16px' }}>
+                  <div style={{ marginTop: '12px' }}>
                     <button
-                      className="btn-meb-primary"
+                      className="btn-meb-primary btn-meb-primary-mobile-compact"
                       style={{ width: '100%', justifyContent: 'center' }}
                       onClick={() => handleCardClick(card)}
                     >
-                      <BookOpen size={16} />
-                      <span>1 Sayfalık Kartı İncele</span>
+                      <BookOpen size={15} />
+                      <span className="btn-text-desktop">1 Sayfalık Kartı İncele</span>
+                      <span className="btn-text-mobile">Kartı İncele</span>
                     </button>
                   </div>
                 </div>
