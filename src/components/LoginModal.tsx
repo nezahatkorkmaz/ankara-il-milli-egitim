@@ -391,7 +391,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
           {activeTab === 'register' && (
             <form onSubmit={handleRegisterSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div className="grid-2col-responsive" style={{ marginBottom: '12px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>AD SOYAD *</label>
                   <div className="input-icon-wrapper">
@@ -453,7 +453,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div className="grid-2col-responsive" style={{ marginBottom: '12px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>BRANŞ *</label>
                   <div className="input-icon-wrapper">
@@ -485,7 +485,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+              <div className="grid-2col-responsive" style={{ marginBottom: '14px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFRE OLUŞTUR *</label>
                   <div className="input-icon-wrapper">

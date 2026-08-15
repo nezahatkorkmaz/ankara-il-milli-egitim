@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User } from '../types';
-import { LogIn, LogOut, Search, User as UserIcon, Layers } from 'lucide-react';
+import { LogIn, LogOut, Search, User as UserIcon, Layers, Menu, X } from 'lucide-react';
 
 interface HeaderProps {
   currentUser: User | null;
@@ -25,6 +25,13 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery = '',
   setSearchQuery,
 }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleTabClick = (tab: 'gallery' | 'report') => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <header>
       <div className="top-red-bar">
@@ -101,10 +108,24 @@ export const Header: React.FC<HeaderProps> = ({
 
       <nav className="official-nav-bar">
         <div className="meb-container">
-          <div className="official-nav-flex">
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Menüyü Aç/Kapat"
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <span>{isMobileMenuOpen ? 'Menüyü Kapat' : 'Ana Menü'}</span>
+            </span>
+            <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--meb-red)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
+              {activeTab === 'gallery' ? 'Afiş Galerisi' : 'Proje Raporu'}
+            </span>
+          </button>
+
+          <div className={`official-nav-flex ${isMobileMenuOpen ? 'open' : ''}`}>
             <ul className="official-nav-ul">
               <li className="official-nav-li">
-                <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer" className="official-nav-link">
+                <a href="https://ankara.meb.gov.tr" target="_blank" rel="noreferrer" className="official-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
                   <span>Anasayfa</span>
                 </a>
               </li>
@@ -112,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
               <li className="official-nav-li">
                 <button
                   className={`official-nav-link ${activeTab === 'gallery' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('gallery')}
+                  onClick={() => handleTabClick('gallery')}
                 >
                   <span>Dijital Afiş Galerisi</span>
                 </button>
@@ -121,78 +142,53 @@ export const Header: React.FC<HeaderProps> = ({
               <li className="official-nav-li">
                 <button
                   className={`official-nav-link ${activeTab === 'report' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('report')}
+                  onClick={() => handleTabClick('report')}
                 >
                   <span>Proje Raporu & Sözleşme Detayları</span>
                 </button>
               </li>
               <span className="nav-slash">/</span>
               <li className="official-nav-li">
-                <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="official-nav-link">
+                <a href="https://ankara.meb.gov.tr/ankbis/" target="_blank" rel="noreferrer" className="official-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
                   <span>ANKBİS - Bilişim Sistemleri</span>
                 </a>
               </li>
               <span className="nav-slash">/</span>
               <li className="official-nav-li">
-                <a href="https://ankara.meb.gov.tr/www/iletisim.php" target="_blank" rel="noreferrer" className="official-nav-link">
+                <a href="https://ankara.meb.gov.tr/www/iletisim.php" target="_blank" rel="noreferrer" className="official-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
                   <span>İletişim</span>
                 </a>
               </li>
             </ul>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="header-user-actions">
               {currentUser ? (
                 <>
-                  <div 
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px', 
-                      fontSize: '13px', 
-                      fontWeight: 700, 
-                      color: '#0f172a',
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #cbd5e1',
-                      padding: '5px 12px',
-                      borderRadius: '20px',
-                      fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif"
-                    }}
-                  >
+                  <div className="user-badge-header">
                     <UserIcon size={14} color="var(--meb-red)" />
                     <span>{currentUser.name}</span>
                   </div>
 
                   <button
                     type="button"
-                    onClick={onOpenProfileModal}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px', 
-                      fontSize: '12.5px', 
-                      fontWeight: 700, 
-                      padding: '5px 12px',
-                      borderRadius: '6px',
-                      fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
-                      border: '1px solid var(--meb-red)',
-                      color: 'var(--meb-red)',
-                      backgroundColor: 'var(--meb-red-light)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                    onClick={() => {
+                      onOpenProfileModal();
+                      setIsMobileMenuOpen(false);
                     }}
+                    className="btn-meb-profile"
                     title="Öğretmen Profilim ve Yüklediğim Afişleri Gör"
                   >
                     <Layers size={14} />
                     <span>Profilim & Afişlerim</span>
                   </button>
 
-                  <button className="btn-meb-outline" onClick={onLogout} title="Çıkış Yap" style={{ padding: '5px 10px', fontSize: '12.5px' }}>
+                  <button className="btn-meb-outline" onClick={() => { onLogout(); setIsMobileMenuOpen(false); }} title="Çıkış Yap" style={{ padding: '5px 10px', fontSize: '12.5px' }}>
                     <LogOut size={14} />
                     <span>Çıkış</span>
                   </button>
                 </>
               ) : (
-                <button className="btn-meb-primary" onClick={onOpenLoginModal}>
+                <button className="btn-meb-primary" onClick={() => { onOpenLoginModal(); setIsMobileMenuOpen(false); }}>
                   <LogIn size={14} />
                   <span>Öğretmen Girişi</span>
                 </button>
@@ -204,3 +200,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

@@ -662,7 +662,7 @@ export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div className="grid-2col-responsive" style={{ marginBottom: '12px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>ROTA KATEGORİSİ *</label>
                   <select

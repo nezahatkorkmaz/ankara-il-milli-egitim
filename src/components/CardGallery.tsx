@@ -81,13 +81,13 @@ export const CardGallery: React.FC<CardGalleryProps> = ({
             <div className="hero-content-grid">
               <div>
                 <span className="report-header-badge">SÖZLEŞME NO: TR51/25/İKT_TD/0041</span>
-                <h2 style={{ fontSize: '30px', fontWeight: 700, marginBottom: '10px', lineHeight: 1.25, letterSpacing: '-0.3px' }}>
+                <h2 className="hero-title-main">
                   DİJİTAL KÜLTÜR ROTALARI PLATFORMU
                 </h2>
-                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fcd34d', marginBottom: '14px' }}>
+                <h3 className="hero-subtitle-main">
                   GEÇMİŞTEN GELECEĞE KÜLTÜRÜYLE ANKARA
                 </h3>
-                <p style={{ fontSize: '15px', color: '#cbd5e1', maxWidth: '780px', marginBottom: '24px', lineHeight: 1.6 }}>
+                <p className="hero-desc-main">
                   Ankara İl Millî Eğitim Müdürlüğü bünyesinde eğitimi başarıyla tamamlayan 230 sertifikalı öğretmenimizin hazırladığı 1 sayfalık dijital kültür afişleri ve öğrenim bilgi kartları portalı.
                 </p>
                 <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>

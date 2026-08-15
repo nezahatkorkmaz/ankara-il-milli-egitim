@@ -176,7 +176,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div className="grid-modal-upload-responsive" style={{ marginBottom: '20px' }}>
               {/* Left Column - Form Inputs */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
@@ -212,7 +212,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   </select>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="grid-2col-responsive">
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>İLÇE / KONUM</label>
                     <input

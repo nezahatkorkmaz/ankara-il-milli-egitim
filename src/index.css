@@ -365,6 +365,29 @@ body {
   z-index: 2;
 }
 
+.hero-title-main {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+}
+
+.hero-subtitle-main {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fcd34d;
+  margin-bottom: 14px;
+}
+
+.hero-desc-main {
+  font-size: 15px;
+  color: #cbd5e1;
+  max-width: 780px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
 .hero-seal-card-wrap {
   display: flex;
   justify-content: center;
@@ -1037,10 +1060,131 @@ textarea.form-control {
   font-weight: 600;
 }
 
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  padding: 10px 4px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: var(--font-family);
+}
+
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-meb-profile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-family);
+  border: 1.5px solid var(--meb-red);
+  color: var(--meb-red);
+  background-color: var(--meb-red-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-meb-profile:hover {
+  background-color: var(--meb-red);
+  color: #ffffff;
+}
+
+.grid-2col-responsive {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-modal-upload-responsive {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+}
+
 @media (max-width: 992px) {
   .site-page-wrapper {
     margin: 0;
     box-shadow: none;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .official-nav-bar {
+    border-bottom: 2.5px solid var(--meb-red);
+  }
+
+  .official-nav-flex {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 10px 0 14px 0;
+  }
+
+  .official-nav-flex.open {
+    display: flex;
+  }
+
+  .official-nav-ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .official-nav-li {
+    width: 100%;
+  }
+
+  .official-nav-link {
+    width: 100%;
+    padding: 10px 14px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+  }
+
+  .official-nav-link.active::after {
+    display: none;
+  }
+
+  .nav-slash {
+    display: none;
+  }
+
+  .header-user-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    width: 100%;
+  }
+
+  .header-user-actions button,
+  .header-user-actions .btn-meb-primary,
+  .header-user-actions .btn-meb-outline,
+  .header-user-actions .btn-meb-profile {
+    width: 100%;
+    justify-content: center;
   }
 
   .hero-content-grid {
@@ -1048,13 +1192,15 @@ textarea.form-control {
   }
 
   .hero-seal-img {
-    width: 220px;
-    height: 220px;
+    width: 200px;
+    height: 200px;
   }
 
   .official-header-flex {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
   }
 
   .official-search-bar {
@@ -1064,14 +1210,175 @@ textarea.form-control {
 
   .footer-info-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .filter-row-top {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 768px) {
+  .meb-container {
+    padding: 0 12px;
+  }
+
+  .top-red-bar {
+    height: auto;
+    padding: 6px 0;
+  }
+
+  .top-red-flex {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .top-red-title {
+    font-size: 14px;
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .top-red-right {
+    padding-right: 0;
+    gap: 8px;
+  }
+
+  .social-icons-row {
+    display: none;
+  }
+
+  .ataturk-real-img {
+    height: 22px;
+  }
+
+  .meb-header-official {
+    padding: 10px 0;
+  }
+
+  .real-meb-logo-img {
+    height: 52px;
+  }
+
+  .turkiye-yuzyili-real-img {
+    height: 38px;
+  }
+
+  .official-hero-boxed {
+    padding: 20px 16px;
+  }
+
+  .hero-title-main {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .hero-subtitle-main {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .hero-desc-main {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .hero-seal-img {
+    width: 140px;
+    height: 140px;
+  }
+
+  .official-pills-row {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .pill-official {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .cards-grid-official {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .copyright-flex {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .projects-flex {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cards-grid-official {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2col-responsive,
+  .grid-modal-upload-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .modal-overlay {
+    padding: 8px !important;
+  }
+
+  .modal-container {
+    width: 100% !important;
+    max-height: 96vh !important;
+    border-radius: 8px !important;
+  }
+
+  .modal-header {
+    padding: 12px 14px !important;
+  }
+
+  .modal-body {
+    padding: 14px !important;
+  }
+
+  .meta-grid-modern {
+    grid-template-columns: 1fr !important;
+  }
+
+  .poster-display-container img {
+    max-height: 300px !important;
+  }
 
   .hero-stats-banner {
     grid-template-columns: repeat(2, 1fr);
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .stat-item-official {
+    border-right: none;
+    border-bottom: 1px dashed #cbd5e1;
+    padding: 8px 4px;
+  }
+
+  .stat-item-official:nth-child(3),
+  .stat-item-official:nth-child(4) {
+    border-bottom: none;
+  }
+
+  .stat-num-official {
+    font-size: 20px;
+  }
+
+  .stat-lbl-official {
+    font-size: 10px;
   }
 }
 
