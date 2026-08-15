@@ -102,6 +102,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleProfileUpdate = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+  };
+
+  const handleDeleteStory = (storyId: string) => {
+    setCards((prev) => prev.filter((c) => c.id !== storyId));
+  };
+
+  const handleUpdateStory = (updatedStory: DigitalStoryCard) => {
+    setCards((prev) =>
+      prev.map((c) => (c.id === updatedStory.id ? updatedStory : c))
+    );
+  };
+
   return (
     <div className="site-page-wrapper">
       <Header
@@ -150,6 +164,9 @@ export const App: React.FC = () => {
             currentUser={currentUser}
             teacherStories={cards}
             onOpenUploadModal={handleOpenUploadModal}
+            onProfileUpdate={handleProfileUpdate}
+            onDeleteStory={handleDeleteStory}
+            onUpdateStory={handleUpdateStory}
           />
         </>
       )}

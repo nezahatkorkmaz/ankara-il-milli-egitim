@@ -2,18 +2,62 @@ import React, { useState } from 'react';
 import { User } from '../types';
 import { 
   X, 
-  Lock, 
   Mail, 
-  ShieldCheck, 
-  Phone, 
-  Calendar, 
-  School, 
+  Lock, 
   User as UserIcon, 
-  UserPlus, 
+  Phone, 
+  School, 
+  Calendar, 
+  GraduationCap, 
+  CheckCircle2, 
+  ShieldCheck, 
   LogIn, 
-  GraduationCap
+  UserPlus,
+  KeyRound,
+  ArrowLeft
 } from 'lucide-react';
-import { registerTeacher, loginTeacher } from '../firebase';
+import { registerTeacher, loginTeacher, resetTeacherPassword } from '../firebase';
+
+const TEACHER_BRANCHES = [
+  'Tarih Öğretmeni',
+  'Sosyal Bilgiler Öğretmeni',
+  'Görsel Sanatlar Öğretmeni',
+  'Müzik Öğretmeni',
+  'Türk Dili ve Edebiyatı Öğretmeni',
+  'Türkçe Öğretmeni',
+  'Sınıf Öğretmeni',
+  'Coğrafya Öğretmeni',
+  'Felsefe Öğretmeni',
+  'İngilizce Öğretmeni',
+  'Matematik Öğretmeni',
+  'Fen Bilimleri / Fizik / Kimya / Biyoloji',
+  'Din Kültürü ve Ahlak Bilgisi',
+  'Bilişim Teknolojileri / Yazılım',
+  'Beden Eğitimi ve Spor',
+  'Teknoloji ve Tasarım',
+  'Okul Öncesi Öğretmeni',
+  'Özel Eğitim Öğretmeni',
+  'Rehberlik ve Psikolojik Danışmanlık (PD/RAM)',
+  'Felsefe Grubu Öğretmeni',
+  'Almanca Öğretmeni',
+  'Fransızca Öğretmeni',
+  'İspanyolca Öğretmeni',
+  'Arapça Öğretmeni',
+  'Sanat Tarihi Öğretmeni',
+  'Halk Oyunları Öğretmeni',
+  'Grafik ve Fotoğraf Öğretmeni',
+  'El Sanatları / Nakış Öğretmeni',
+  'Radyo Televizyon Öğretmeni',
+  'Konaklama ve Seyahat Hizmetleri',
+  'Yiyecek İçecek Hizmetleri',
+  'Giyim Üretim Teknolojisi',
+  'Çocuk Gelişimi ve Eğitimi',
+  'Adalet Öğretmeni',
+  'Motorlu Araçlar Teknolojisi',
+  'Elektrik-Elektronik Teknolojisi',
+  'Bilişim Teknolojileri Öğretmeni',
+  'Okul Yöneticisi / Müdür / Müdür Yardımcısı'
+];
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -21,100 +65,76 @@ interface LoginModalProps {
   onLoginSuccess: (user: User) => void;
 }
 
-const teacherBranches = [
-  'Beden Eğitimi Öğretmeni',
-  'Bilişim Teknolojileri Öğretmeni',
-  'Biyoloji Öğretmeni',
-  'Coğrafya Öğretmeni',
-  'Din Kültürü ve Ahlak Bilgisi Öğretmeni',
-  'El Sanatları / Nakış Öğretmeni',
-  'Felsefe / Psikoloji / Sosyoloji Öğretmeni',
-  'Fen Bilimleri Öğretmeni',
-  'Fizik Öğretmeni',
-  'Görsel Sanatlar / Resim Öğretmeni',
-  'Grafik ve Fotoğraf Öğretmeni',
-  'İmam-Hatip Lisesi Meslek Dersleri Öğretmeni',
-  'İngilizce / Yabancı Dil Öğretmeni',
-  'İlköğretim Matematik Öğretmeni',
-  'Kimya / Kimya Teknolojisi Öğretmeni',
-  'Lise Matematik Öğretmeni',
-  'Müzik Öğretmeni',
-  'Okul Öncesi Öğretmeni',
-  'Özel Eğitim Öğretmeni',
-  'Rehberlik / PDR Öğretmeni',
-  'Sanat Tarihi Öğretmeni',
-  'Sınıf Öğretmeni',
-  'Sosyal Bilgiler Öğretmeni',
-  'Tarih Öğretmeni',
-  'Teknoloji ve Tasarım Öğretmeni',
-  'Tiyatro / Drama Öğretmeni',
-  'Türk Dili ve Edebiyatı Öğretmeni',
-  'Türkçe Öğretmeni',
-  'Almanca Öğretmeni',
-  'Arapça Öğretmeni',
-  'Fransızca Öğretmeni',
-  'Mesleki ve Teknik Dersler Öğretmeni',
-  'Sağlık Hizmetleri Öğretmeni',
-  'Diğer Öğretmenlik Branşı'
-];
-
 export const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
   onLoginSuccess,
 }) => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'reset'>('login');
+  
+  // Login Form State
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  // Reset Form State
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccessMessage, setResetSuccessMessage] = useState('');
 
-  // Login form state
-  const [loginEmail, setLoginEmail] = useState<string>('');
-  const [loginPassword, setLoginPassword] = useState<string>('');
+  // Register Form State
+  const [fullName, setFullName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [school, setSchool] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [branch, setBranch] = useState('Tarih Öğretmeni');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Register form state
-  const [regFullName, setRegFullName] = useState<string>('');
-  const [regEmail, setRegEmail] = useState<string>('');
-  const [regPhone, setRegPhone] = useState<string>('');
-  const [regBirthDate, setRegBirthDate] = useState<string>('');
-  const [regSchool, setRegSchool] = useState<string>('');
-  const [regBranch, setRegBranch] = useState<string>('');
-  const [regPassword, setRegPassword] = useState<string>('');
-  const [regConfirmPassword, setRegConfirmPassword] = useState<string>('');
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   if (!isOpen) return null;
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    setSuccessMessage('');
+    setIsLoading(true);
 
-    if (!loginEmail.trim() || !loginPassword) {
-      setErrorMessage('Lütfen kurumsal e-posta adresinizi ve şifrenizi giriniz.');
+    try {
+      if (!loginEmail.trim() || !loginPassword) {
+        setErrorMessage('Lütfen e-posta ve şifrenizi giriniz.');
+        setIsLoading(false);
+        return;
+      }
+
+      const user = await loginTeacher(loginEmail, loginPassword);
+      onLoginSuccess(user);
+      onClose();
+    } catch (err: any) {
+      console.error('Giriş hatası:', err);
+      setErrorMessage('Giriş yapılırken bir hata oluştu.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setResetSuccessMessage('');
+
+    if (!resetEmail.trim()) {
+      setErrorMessage('Lütfen kurumsal e-posta adresinizi giriniz.');
       return;
     }
 
     setIsLoading(true);
-
     try {
-      const firebaseUser = await loginTeacher(loginEmail.trim(), loginPassword);
-      onLoginSuccess(firebaseUser);
-      onClose();
-    } catch (err: any) {
-      const customUser: User = {
-        id: `usr-${Date.now()}`,
-        name: loginEmail.split('@')[0].toUpperCase(),
-        email: loginEmail.trim(),
-        phone: '0532 000 00 00',
-        birthDate: '1988-01-01',
-        role: 'teacher',
-        school: 'Ankara İl Millî Eğitim Müdürlüğü',
-        branch: 'Öğretmen',
-        trainingCompleted: true,
-      };
-      onLoginSuccess(customUser);
-      onClose();
+      await resetTeacherPassword(resetEmail);
+      setResetSuccessMessage('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen e-postanızı ve gerekiyorsa gereksiz (Spam) kutunuzu kontrol ediniz.');
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Şifre sıfırlama e-postası gönderilirken bir hata oluştu.');
     } finally {
       setIsLoading(false);
     }
@@ -123,59 +143,50 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    setSuccessMessage('');
 
-    if (!regFullName.trim() || !regEmail.trim() || !regPhone.trim() || !regSchool.trim() || !regBranch || !regPassword || !regConfirmPassword) {
-      setErrorMessage('Lütfen tüm zorunlu kayıt alanlarını doldurunuz.');
+    if (!fullName.trim()) {
+      setErrorMessage('Lütfen Ad ve Soyad alanını doldurunuz.');
       return;
     }
-
-    if (regPassword.length < 6) {
+    if (!registerEmail.trim() || !registerEmail.includes('@')) {
+      setErrorMessage('Lütfen geçerli bir e-posta adresi giriniz.');
+      return;
+    }
+    if (!phone.trim()) {
+      setErrorMessage('Lütfen telefon numaranızı giriniz.');
+      return;
+    }
+    if (!school.trim()) {
+      setErrorMessage('Lütfen görev yaptığınız okulu giriniz.');
+      return;
+    }
+    if (!registerPassword || registerPassword.length < 6) {
       setErrorMessage('Şifreniz en az 6 karakter olmalıdır.');
       return;
     }
-
-    if (regPassword !== regConfirmPassword) {
-      setErrorMessage('Girdiğiniz şifreler birbiriyle eşleşmiyor. Lütfen her iki alana da aynı şifreyi giriniz.');
+    if (registerPassword !== confirmPassword) {
+      setErrorMessage('Girdiğiniz şifreler birbiriyle eşleşmiyor. Lütfen kontrol ediniz.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const newUser = await registerTeacher({
-        fullName: regFullName,
-        email: regEmail,
-        phone: regPhone,
-        school: regSchool,
-        birthDate: regBirthDate || '1990-01-01',
-        branch: regBranch,
-        password: regPassword,
+      const user = await registerTeacher({
+        fullName: fullName.trim(),
+        email: registerEmail.trim(),
+        phone: phone.trim(),
+        school: school.trim(),
+        birthDate: birthDate,
+        branch: branch,
+        password: registerPassword
       });
 
-      setSuccessMessage('Öğretmen kaydınız başarıyla oluşturuldu! Sisteme giriş yapılıyor...');
-      setTimeout(() => {
-        onLoginSuccess(newUser);
-        onClose();
-      }, 900);
+      onLoginSuccess(user);
+      onClose();
     } catch (err: any) {
-      const fallbackUser: User = {
-        id: `usr-${Date.now()}`,
-        name: regFullName.trim(),
-        email: regEmail.trim(),
-        phone: regPhone.trim(),
-        birthDate: regBirthDate || '1990-01-01',
-        role: 'teacher',
-        school: regSchool.trim(),
-        branch: regBranch.trim(),
-        trainingCompleted: true,
-      };
-
-      setSuccessMessage('Öğretmen profiliniz oluşturuldu ve kaydınız tamamlandı!');
-      setTimeout(() => {
-        onLoginSuccess(fallbackUser);
-        onClose();
-      }, 800);
+      console.error('Kayıt hatası:', err);
+      setErrorMessage('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyiniz.');
     } finally {
       setIsLoading(false);
     }
@@ -201,61 +212,63 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         <div className="modal-body" style={{ padding: '20px' }}>
           {/* Segmented Control Tabs */}
-          <div style={{ display: 'flex', backgroundColor: '#f1f5f9', padding: '4px', borderRadius: '8px', marginBottom: '20px' }}>
-            <button
-              type="button"
-              style={{
-                flex: 1,
-                padding: '9px 16px',
-                borderRadius: '6px',
-                border: 'none',
-                backgroundColor: activeTab === 'login' ? '#ffffff' : 'transparent',
-                color: activeTab === 'login' ? 'var(--meb-red)' : '#64748b',
-                fontWeight: activeTab === 'login' ? 700 : 500,
-                fontSize: '14px',
-                fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: activeTab === 'login' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.2s ease',
-              }}
-              onClick={() => { setActiveTab('login'); setErrorMessage(''); }}
-            >
-              <LogIn size={16} />
-              <span>Giriş Yap</span>
-            </button>
+          {activeTab !== 'reset' && (
+            <div style={{ display: 'flex', backgroundColor: '#f1f5f9', padding: '4px', borderRadius: '8px', marginBottom: '20px' }}>
+              <button
+                type="button"
+                style={{
+                  flex: 1,
+                  padding: '9px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: activeTab === 'login' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'login' ? 'var(--meb-red)' : '#64748b',
+                  fontWeight: activeTab === 'login' ? 700 : 500,
+                  fontSize: '14px',
+                  fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: activeTab === 'login' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={() => { setActiveTab('login'); setErrorMessage(''); }}
+              >
+                <LogIn size={16} />
+                <span>Giriş Yap</span>
+              </button>
 
-            <button
-              type="button"
-              style={{
-                flex: 1,
-                padding: '9px 16px',
-                borderRadius: '6px',
-                border: 'none',
-                backgroundColor: activeTab === 'register' ? '#ffffff' : 'transparent',
-                color: activeTab === 'register' ? 'var(--meb-red)' : '#64748b',
-                fontWeight: activeTab === 'register' ? 700 : 500,
-                fontSize: '14px',
-                fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: activeTab === 'register' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.2s ease',
-              }}
-              onClick={() => { setActiveTab('register'); setErrorMessage(''); }}
-            >
-              <UserPlus size={16} />
-              <span>Yeni Öğretmen Kaydı</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                style={{
+                  flex: 1,
+                  padding: '9px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: activeTab === 'register' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'register' ? 'var(--meb-red)' : '#64748b',
+                  fontWeight: activeTab === 'register' ? 700 : 500,
+                  fontSize: '14px',
+                  fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: activeTab === 'register' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={() => { setActiveTab('register'); setErrorMessage(''); }}
+              >
+                <UserPlus size={16} />
+                <span>Yeni Öğretmen Kaydı</span>
+              </button>
+            </div>
+          )}
 
-          {activeTab === 'login' ? (
+          {activeTab === 'login' && (
             <form onSubmit={handleLoginSubmit}>
               <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>KURUMSAL E-POSTA ADRESİ *</label>
@@ -272,7 +285,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
+              <div className="form-group" style={{ marginBottom: '8px' }}>
                 <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFRE *</label>
                 <div className="input-icon-wrapper">
                   <Lock className="input-icon" size={17} />
@@ -287,6 +300,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
               </div>
 
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab('reset'); setErrorMessage(''); setResetSuccessMessage(''); setResetEmail(loginEmail); }}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: 'var(--meb-red)',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <KeyRound size={14} />
+                  <span>Şifremi Unuttum?</span>
+                </button>
+              </div>
+
               {errorMessage && (
                 <div style={{ color: '#e30613', fontSize: '13px', marginBottom: '14px', fontWeight: 600, backgroundColor: '#fef2f2', border: '1px solid #fecaca', padding: '10px 14px', borderRadius: '6px', fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
                   {errorMessage}
@@ -298,14 +333,65 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   İptal
                 </button>
                 <button type="submit" className="btn-meb-primary" disabled={isLoading}>
-                  <LogIn size={16} />
-                  <span>{isLoading ? 'Giriş Yapılıyor...' : 'Sisteme Giriş Yap'}</span>
+                  {isLoading ? 'Giriş Yapılıyor...' : 'Sisteme Giriş Yap'}
                 </button>
               </div>
             </form>
-          ) : (
+          )}
+
+          {activeTab === 'reset' && (
+            <form onSubmit={handleResetSubmit}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', color: '#0f172a', fontWeight: 700, fontSize: '15px' }}>
+                <KeyRound size={18} color="var(--meb-red)" />
+                <span>Şifre Sıfırlama Bağlantısı İste</span>
+              </div>
+
+              <p style={{ fontSize: '13.5px', color: '#475569', marginBottom: '16px', lineHeight: 1.4, fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
+                Hesabınıza kayıtlı e-posta adresinizi giriniz. Güvenli şifre yenileme bağlantısı adresinize e-posta olarak gönderilecektir.
+              </p>
+
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>KURUMSAL E-POSTA ADRESİ *</label>
+                <div className="input-icon-wrapper">
+                  <Mail className="input-icon" size={17} />
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="ad.soyad@meb.k12.tr"
+                    required
+                  />
+                </div>
+              </div>
+
+              {resetSuccessMessage && (
+                <div style={{ color: '#166534', fontSize: '13px', marginBottom: '14px', fontWeight: 600, backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '12px 14px', borderRadius: '6px', fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
+                  {resetSuccessMessage}
+                </div>
+              )}
+
+              {errorMessage && (
+                <div style={{ color: '#e30613', fontSize: '13px', marginBottom: '14px', fontWeight: 600, backgroundColor: '#fef2f2', border: '1px solid #fecaca', padding: '10px 14px', borderRadius: '6px', fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
+                  {errorMessage}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+                <button type="button" className="btn-meb-outline" onClick={() => { setActiveTab('login'); setErrorMessage(''); }}>
+                  <ArrowLeft size={15} />
+                  <span>Giriş Ekranına Dön</span>
+                </button>
+                <button type="submit" className="btn-meb-primary" disabled={isLoading}>
+                  {isLoading ? 'Gönderiliyor...' : 'Bağlantı Gönder'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {activeTab === 'register' && (
             <form onSubmit={handleRegisterSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>AD SOYAD *</label>
                   <div className="input-icon-wrapper">
@@ -313,9 +399,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Mehmet KAYA"
-                      value={regFullName}
-                      onChange={(e) => setRegFullName(e.target.value)}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Örn: Zeynep YILMAZ"
                       required
                     />
                   </div>
@@ -328,106 +414,103 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     <input
                       type="tel"
                       className="form-control"
-                      placeholder="0532 123 45 67"
-                      value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="05XX XXX XX XX"
                       required
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '14px' }}>
-                <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>KURUMSAL E-POSTA ADRESİ *</label>
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>E-POSTA ADRESİ *</label>
                 <div className="input-icon-wrapper">
                   <Mail className="input-icon" size={17} />
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="mehmet.kaya@meb.k12.tr"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
+                    value={registerEmail}
+                    onChange={(e) => setRegisterEmail(e.target.value)}
+                    placeholder="ad.soyad@meb.k12.tr"
                     required
                   />
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '14px' }}>
+              <div className="form-group" style={{ marginBottom: '12px' }}>
                 <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>GÖREV YAPTIĞI OKUL / KURUM *</label>
                 <div className="input-icon-wrapper">
                   <School className="input-icon" size={17} />
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Örn: Yenimahalle Anadolu Lisesi"
-                    value={regSchool}
-                    onChange={(e) => setRegSchool(e.target.value)}
+                    value={school}
+                    onChange={(e) => setSchool(e.target.value)}
+                    placeholder="Örn: Çankaya Şehit Ali İhsan Okul Kompleksi"
                     required
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>DOĞUM TARİHİ *</label>
-                  <div className="input-icon-wrapper">
-                    <Calendar className="input-icon" size={17} />
-                    <input
-                      type="date"
-                      className="form-control"
-                      value={regBirthDate}
-                      onChange={(e) => setRegBirthDate(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
+              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>BRANŞ *</label>
                   <div className="input-icon-wrapper">
                     <GraduationCap className="input-icon" size={17} />
                     <select
                       className="form-control"
-                      value={regBranch}
-                      onChange={(e) => setRegBranch(e.target.value)}
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
                       required
-                      style={{ appearance: 'auto', paddingLeft: '38px' }}
                     >
-                      <option value="" disabled>Branş Seçiniz...</option>
-                      {teacherBranches.map((br) => (
-                        <option key={br} value={br}>{br}</option>
+                      {TEACHER_BRANCHES.map((b) => (
+                        <option key={b} value={b}>{b}</option>
                       ))}
                     </select>
                   </div>
                 </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>DOĞUM TARİHİ</label>
+                  <div className="input-icon-wrapper">
+                    <Calendar className="input-icon" size={17} />
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFRE BELİRLEYİNİZ *</label>
+                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFRE OLUŞTUR *</label>
                   <div className="input-icon-wrapper">
                     <Lock className="input-icon" size={17} />
                     <input
                       type="password"
                       className="form-control"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
                       placeholder="En az 6 karakter"
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
                       required
                     />
                   </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFREYİ ONAYLAYINIZ *</label>
+                  <label style={{ fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>ŞİFREYİ ONAYLAYIN *</label>
                   <div className="input-icon-wrapper">
                     <Lock className="input-icon" size={17} />
                     <input
                       type="password"
                       className="form-control"
-                      placeholder="Şifrenizi tekrar girin"
-                      value={regConfirmPassword}
-                      onChange={(e) => setRegConfirmPassword(e.target.value)}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Şifreyi tekrar yazın"
                       required
                     />
                   </div>
@@ -440,23 +523,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </div>
               )}
 
-              {successMessage && (
-                <div style={{ color: '#16a34a', fontSize: '13px', marginBottom: '14px', fontWeight: 600, backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 14px', borderRadius: '6px', fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
-                  {successMessage}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
                 <button type="button" className="btn-meb-outline" onClick={onClose}>
                   İptal
                 </button>
                 <button type="submit" className="btn-meb-primary" disabled={isLoading}>
-                  <UserPlus size={16} />
-                  <span>{isLoading ? 'Kaydediliyor...' : 'Hesap Oluştur & Kaydol'}</span>
+                  {isLoading ? 'Kayıt Yapılıyor...' : 'Hesap Oluştur & Kaydol'}
                 </button>
               </div>
             </form>
           )}
+
+          {/* MEB Security Badge Footer Note */}
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0', fontSize: '11.5px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "'MYRIAD PRO', 'Myriad Pro', sans-serif" }}>
+            <CheckCircle2 size={14} color="#16a34a" />
+            <span>Kişisel verileriniz KVKK ve MEB Güvenlik Politikaları gereğince korunmaktadır.</span>
+          </div>
         </div>
       </div>
     </div>

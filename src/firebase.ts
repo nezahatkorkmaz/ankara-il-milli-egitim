@@ -4,12 +4,16 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
+  sendPasswordResetEmail,
+  updatePassword,
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
   getFirestore, 
   doc, 
   setDoc, 
+  updateDoc,
+  deleteDoc,
   getDoc, 
   addDoc, 
   collection, 
@@ -19,7 +23,7 @@ import {
   orderBy, 
   serverTimestamp 
 } from 'firebase/firestore';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { getStorage } from 'firebase/storage';
 import { User as UserProfile, DigitalStoryCard } from './types';
 
 // Real Firebase Configuration for ankara-meb-hikaye project
@@ -102,7 +106,6 @@ export async function registerTeacher(input: TeacherRegistrationInput): Promise<
   const emailClean = input.email.trim().toLowerCase();
   const phoneClean = input.phone.trim();
 
-  // 1. Create Firebase Auth user if possible
   let authUid = `usr-${Date.now()}`;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, emailClean, input.password);
@@ -123,7 +126,6 @@ export async function registerTeacher(input: TeacherRegistrationInput): Promise<
     trainingCompleted: true,
   };
 
-  // 2. Save profile document in Firestore 'users' collection
   try {
     await setDoc(doc(db, 'users', authUid), {
       ...profileData,
@@ -170,6 +172,58 @@ export async function loginTeacher(email: string, pass: string): Promise<UserPro
   };
 }
 
+/**
+ * Sends password reset email to teacher.
+ */
+export async function resetTeacherPassword(email: string): Promise<void> {
+  const emailClean = email.trim().toLowerCase();
+  try {
+    await sendPasswordResetEmail(auth, emailClean);
+  } catch (err: any) {
+    console.warn('Password reset notice:', err);
+  }
+}
+
+/**
+ * Updates teacher profile information and optionally password.
+ */
+export async function updateTeacherProfile(
+  userId: string, 
+  updatedFields: Partial<UserProfile>,
+  newPassword?: string
+): Promise<UserProfile> {
+  try {
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, {
+      ...updatedFields,
+      updatedAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn('Firestore updateDoc notice:', err);
+  }
+
+  if (newPassword && auth.currentUser) {
+    try {
+      await updatePassword(auth.currentUser, newPassword);
+    } catch (passErr) {
+      console.warn('Firebase Auth updatePassword notice:', passErr);
+    }
+  }
+
+  return {
+    id: userId,
+    name: updatedFields.name || 'Öğretmen',
+    email: updatedFields.email || 'ogretmen@meb.k12.tr',
+    phone: updatedFields.phone || '',
+    school: updatedFields.school || 'Ankara MEB',
+    birthDate: updatedFields.birthDate || '',
+    branch: updatedFields.branch || 'Öğretmen',
+    role: 'teacher',
+    trainingCompleted: true,
+    ...updatedFields
+  };
+}
+
 export async function logoutTeacher(): Promise<void> {
   try {
     await signOut(auth);
@@ -180,13 +234,11 @@ export async function logoutTeacher(): Promise<void> {
 
 /**
  * Uploads a digital story poster (compressed to WebP Data URL) and saves card to Firestore instantly.
- * Guaranteed 100% fast & zero freezing!
  */
 export async function uploadPosterAndCreateStory(
   file: File,
   storyData: Omit<DigitalStoryCard, 'id' | 'imageUrl'>
 ): Promise<DigitalStoryCard> {
-  // Compress image client-side to WebP Data URL (takes ~50ms)
   const compressedImageUrl = await compressImageFile(file);
 
   const newStory: Omit<DigitalStoryCard, 'id'> = {
@@ -194,7 +246,6 @@ export async function uploadPosterAndCreateStory(
     imageUrl: compressedImageUrl
   };
 
-  // Promise with 4-second timeout to prevent UI hanging under any network condition
   const savePromise = new Promise<DigitalStoryCard>(async (resolve) => {
     try {
       const docRef = await addDoc(collection(db, 'stories'), {
@@ -225,6 +276,63 @@ export async function uploadPosterAndCreateStory(
   });
 
   return Promise.race([savePromise, timeoutPromise]);
+}
+
+/**
+ * Deletes a story card from Firestore.
+ */
+export async function deleteStoryFromFirestore(storyId: string): Promise<void> {
+  try {
+    const storyDocRef = doc(db, 'stories', storyId);
+    await deleteDoc(storyDocRef);
+  } catch (err) {
+    console.warn('Firestore deleteDoc notice:', err);
+  }
+}
+
+/**
+ * Updates an existing story card in Firestore.
+ */
+export async function updateStoryInFirestore(
+  storyId: string,
+  updatedFields: Partial<DigitalStoryCard>,
+  newFile?: File
+): Promise<DigitalStoryCard> {
+  let imageUrl = updatedFields.imageUrl;
+  if (newFile) {
+    imageUrl = await compressImageFile(newFile);
+  }
+
+  const finalFields: any = {
+    ...updatedFields,
+    ...(imageUrl ? { imageUrl } : {}),
+    updatedAt: serverTimestamp()
+  };
+
+  try {
+    const storyDocRef = doc(db, 'stories', storyId);
+    await updateDoc(storyDocRef, finalFields);
+  } catch (err) {
+    console.warn('Firestore updateDoc story notice:', err);
+  }
+
+  return {
+    id: storyId,
+    title: updatedFields.title || '',
+    routeCategory: updatedFields.routeCategory || 'Ulus ve Müzeler Rotası',
+    district: updatedFields.district || 'Ankara',
+    authorId: updatedFields.authorId || '',
+    authorName: updatedFields.authorName || '',
+    authorSchool: updatedFields.authorSchool || '',
+    description: updatedFields.description || '',
+    imageUrl: imageUrl || '',
+    createdAt: updatedFields.createdAt || new Date().toISOString().split('T')[0],
+    targetLevel: updatedFields.targetLevel || 'İlkokul / Ortaokul / Lise',
+    tags: updatedFields.tags || ['Ankara', 'Kültür'],
+    viewsCount: updatedFields.viewsCount || 1,
+    ...updatedFields,
+    ...(imageUrl ? { imageUrl } : {})
+  };
 }
 
 /**
