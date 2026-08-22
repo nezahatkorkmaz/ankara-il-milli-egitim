@@ -1,0 +1,446 @@
+diff --git a/.gitignore b/.gitignore
+index 5d68393..ee85e9b 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -3,3 +3,6 @@ dist
+ .DS_Store
+ *.local
+ .vercel
++.env
++.env.*
++!.env.example
+diff --git a/src/components/StoryUploadModal.tsx b/src/components/StoryUploadModal.tsx
+index 08dcd96..95ae3c7 100644
+--- a/src/components/StoryUploadModal.tsx
++++ b/src/components/StoryUploadModal.tsx
+@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
+ import { User, DigitalStoryCard, RouteCategory } from '../types';
+ import { X, UploadCloud, CheckCircle2, GraduationCap, Image as ImageIcon, MapPin, Tag, FileText, Sparkles, RefreshCw, Loader2, AlertCircle, Wand2, ArrowRight } from 'lucide-react';
+ import { uploadPosterAndCreateStory } from '../firebase';
+-import { generateInfographicPosterData, generateAiBuildingImage } from '../services/geminiService';
++import { generateInfographicPosterData, generateAiBuildingImage, generateFullPosterImage, fileToBase64, getGeminiApiKey } from '../services/geminiService';
+ import { generatePosterImageFromCanvas } from '../utils/posterCanvasGenerator';
+ 
+ interface StoryUploadModalProps {
+@@ -89,7 +89,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
+ 
+     try {
+       const prompt = rawStoryText.substring(0, 50) || 'Ankara Resim ve Heykel Müzesi';
+-      const generatedImageUrl = await generateAiBuildingImage(prompt);
++      const generatedImageUrl = await generateAiBuildingImage(prompt, getGeminiApiKey());
+       setAiPhotoPreview(generatedImageUrl);
+       setAiPhotoFile(null);
+       setSuccessMessage('🎨 Yapay zeka mekân görselini başarıyla oluşturdu!');
+@@ -111,34 +111,56 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
+     setIsAiGenerating(true);
+ 
+     try {
+-      // 1. Send Multimodal Input (Text + Photo File) to Gemini AI
++      // 1. Send Multimodal Input (Text + Photo File) to Gemini AI to get structured
++      // content + a design theme (still used to populate the form fields below,
++      // and as the basis for the full-poster image prompt / canvas fallback).
+       const infographicData = await generateInfographicPosterData(
+         rawStoryText,
+         routeCategory,
+         district,
+-        aiPhotoFile
++        aiPhotoFile,
++        getGeminiApiKey()
+       );
+ 
+       // Use uploaded image or AI generated photo
+       const finalPhotoUrl = aiPhotoPreview || infographicData.aiGeneratedImageUrl || '/posters/resim-heykel-bina.png';
+ 
+-      // 2. Dynamically synthesize 1-page Infographic Poster based on Gemini AI design system tokens
+-      const generatedPosterDataUrl = await generatePosterImageFromCanvas({
+-        data: infographicData,
+-        photoUrl: finalPhotoUrl,
+-        routeCategory,
+-        district,
+-        authorName: currentUser.name,
+-        authorSchool: currentUser.school,
+-      });
++      let generatedPosterDataUrl: string;
++
++      try {
++        // 2a. Preferred path: generate the WHOLE poster as one illustrated AI image
++        // (Nano Banana Pro), matching the richer design language of the reference
++        // posters (Beypazarı / Erimtan / Atakule) instead of a plain boxed layout.
++        const referencePhoto = aiPhotoFile ? await fileToBase64(aiPhotoFile) : null;
++        generatedPosterDataUrl = await generateFullPosterImage(
++          infographicData,
++          district,
++          currentUser.name,
++          currentUser.school,
++          referencePhoto,
++          getGeminiApiKey()
++        );
++        setSuccessMessage('✨ Multimodal Gemini AI mekân görselini ve metnini analiz ederek TAMAMEN ÖZGÜN, illüstrasyonlu bir afiş tasarladı!');
++      } catch (posterImgErr) {
++        console.warn('Tam-görsel afiş üretimi başarısız oldu, Canvas motoruna geri dönülüyor:', posterImgErr);
++        // 2b. Fallback: deterministic Canvas rendering (always works, guarantees
++        // text accuracy and photo placement even without an AI image model).
++        generatedPosterDataUrl = await generatePosterImageFromCanvas({
++          data: infographicData,
++          photoUrl: finalPhotoUrl,
++          routeCategory,
++          district,
++          authorName: currentUser.name,
++          authorSchool: currentUser.school,
++        });
++        setSuccessMessage('✨ Afiş oluşturuldu (yedek şablon motoru ile — AI görsel üretimi için API anahtarını kontrol edin).');
++      }
+ 
+       // 3. Populate form fields automatically
+       setTitle(infographicData.mainTitle);
+       setDescription(infographicData.aboutText);
+       setPreviewUrl(generatedPosterDataUrl);
+       setSelectedFile(null);
+-
+-      setSuccessMessage('✨ Multimodal Gemini AI metni ve fotoğrafı analiz ederek Özgün Dinamik Afişi tasarladı!');
+     } catch (err: any) {
+       setValidationError(err.message || 'AI Afiş oluşturulurken bir hata meydana geldi.');
+     } finally {
+diff --git a/src/services/geminiService.ts b/src/services/geminiService.ts
+index 7de76b6..4c803f9 100644
+--- a/src/services/geminiService.ts
++++ b/src/services/geminiService.ts
+@@ -1,5 +1,25 @@
+ import { RouteCategory } from '../types';
+ 
++/**
++ * Reads the Gemini API key from Vite environment variables (.env -> VITE_GEMINI_API_KEY).
++ * Centralizing this means every caller automatically gets multimodal Gemini access
++ * without having to remember to thread the key through manually.
++ */
++export function getGeminiApiKey(): string | undefined {
++  const key = import.meta.env.VITE_GEMINI_API_KEY;
++  return key && key.trim().length > 0 ? key : undefined;
++}
++
++/**
++ * Model IDs.
++ * NOTE: Imagen (imagen-3.0-*) and Gemini 1.5 models are deprecated/shut down as of
++ * mid-2026. We use the current Gemini 3 generation instead:
++ * - Text/JSON reasoning -> gemini-3.1-flash
++ * - Image generation with reliable embedded text ("Nano Banana Pro") -> gemini-3-pro-image-preview
++ */
++const GEMINI_TEXT_MODEL = 'gemini-3.1-flash';
++const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview';
++
+ export interface DynamicDesignSystem {
+   primaryColor: string;     // e.g. #0B1E36 (Navy), #5C1D24 (Burgundy), #1B4D3E (Emerald)
+   accentColor: string;      // e.g. #B8860B (Gold), #D97706 (Amber), #C23B22 (Terracotta)
+@@ -53,33 +73,48 @@ export async function generateAiBuildingImage(
+   apiKey?: string
+ ): Promise<string> {
+   const cleanPlace = placePrompt.trim() || 'Ankara Resim ve Heykel Müzesi';
++  const resolvedApiKey = apiKey || getGeminiApiKey();
+ 
+-  if (apiKey) {
++  if (resolvedApiKey) {
+     try {
+       const response = await fetch(
+-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
++        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${resolvedApiKey}`,
+         {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+-            instances: [
++            contents: [
+               {
+-                prompt: `High quality realistic architectural photography of ${cleanPlace}, cultural heritage museum building in Ankara Turkey, sunny day, 4k ultra detailed`,
++                role: 'user',
++                parts: [
++                  {
++                    text: `High quality realistic architectural photograph of ${cleanPlace}, cultural heritage museum building in Ankara, Turkey. Sunny day, 4K ultra detailed, professional real-estate/travel photography style. No text, no watermark, no people close-up.`,
++                  },
++                ],
+               },
+             ],
+-            parameters: { sampleCount: 1, aspectRatio: '4:3' },
++            generationConfig: {
++              responseModalities: ['IMAGE'],
++              imageConfig: { aspectRatio: '4:3' },
++            },
+           }),
+         }
+       );
+ 
+       if (response.ok) {
+         const data = await response.json();
+-        if (data.predictions?.[0]?.bytesBase64Encoded) {
+-          return `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
++        const imagePart = data.candidates?.[0]?.content?.parts?.find(
++          (p: any) => p.inlineData?.data
++        );
++        if (imagePart) {
++          return `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`;
+         }
++      } else {
++        const errBody = await response.text().catch(() => '');
++        console.warn(`Gemini image API isteği başarısız (HTTP ${response.status}).`, errBody);
+       }
+     } catch (err) {
+-      console.warn('Gemini Imagen API notice:', err);
++      console.warn('Gemini image API notice:', err);
+     }
+   }
+ 
+@@ -103,13 +138,18 @@ export async function generateInfographicPosterData(
+   apiKey?: string
+ ): Promise<InfographicPosterData> {
+   const cleanedText = rawStoryText.trim();
++  const resolvedApiKey = apiKey || getGeminiApiKey();
+ 
+   if (!cleanedText) {
+     throw new Error('Lütfen afişe dönüştürülecek mekan/kültür metnini giriniz.');
+   }
+ 
+-  // Generate building photo if needed
+-  const aiImageUrl = await generateAiBuildingImage(cleanedText.substring(0, 60), apiKey);
++  // Generate building photo only when the teacher hasn't supplied one of their own.
++  // (Uploaded photos are the multimodal input for the vision-language prompt below,
++  // so we don't want to overwrite them with a freshly generated placeholder.)
++  const aiImageUrl = imageFile
++    ? undefined
++    : await generateAiBuildingImage(cleanedText.substring(0, 60), resolvedApiKey);
+ 
+   // System Prompt for Multimodal Gemini AI
+   const systemPrompt = `Sen MEB Ankara İl Millî Eğitim Müdürlüğü Kıdemli Grafik Tasarımcısı ve Pedagojik İçerik Mimarısın.
+@@ -165,7 +205,7 @@ Rota: "${routeCategory}"
+ İlçe: "${district}"`;
+ 
+   // Multimodal Gemini API Request
+-  if (apiKey) {
++  if (resolvedApiKey) {
+     try {
+       const parts: any[] = [{ text: systemPrompt }];
+ 
+@@ -180,7 +220,7 @@ Rota: "${routeCategory}"
+       }
+ 
+       const response = await fetch(
+-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
++        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${resolvedApiKey}`,
+         {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+@@ -196,9 +236,23 @@ Rota: "${routeCategory}"
+         const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+         if (jsonText) {
+           const parsed = JSON.parse(jsonText) as InfographicPosterData;
++          // Keep the design system defensively populated in case Gemini omits a field.
++          const defaultDesignSystem: DynamicDesignSystem = {
++            primaryColor: '#0B1E36',
++            accentColor: '#B8860B',
++            backgroundColor: '#FAF7F2',
++            cardBorderColor: '#D8CBB7',
++            themeVariant: 'classic_antique',
++            quoteStyle: 'greek_column',
++          };
++          parsed.designSystem = Object.assign({}, defaultDesignSystem, parsed.designSystem);
+           parsed.aiGeneratedImageUrl = aiImageUrl;
+           return parsed;
+         }
++        console.warn('Gemini multimodal yanıtı boş JSON döndürdü, yerel sentezleyiciye geçiliyor.', data);
++      } else {
++        const errBody = await response.text().catch(() => '');
++        console.warn(`Gemini multimodal isteği başarısız (HTTP ${response.status}). Yerel sentezleyiciye geçiliyor.`, errBody);
+       }
+     } catch (err) {
+       console.warn('Multimodal Gemini API call notice:', err);
+@@ -211,6 +265,154 @@ Rota: "${routeCategory}"
+   return result;
+ }
+ 
++/**
++ * Per-theme art direction, modeled on the 4 reference posters supplied by MEB
++ * (Erimtan Müzesi = classic_antique, Beypazarı = ottoman_heritage, Atakule = art_deco,
++ * plus a clean modern_minimalist option). This is what makes generateFullPosterImage
++ * actually produce visually distinct, illustrated posters instead of one generic template.
++ */
++function getStyleDirective(themeVariant: DynamicDesignSystem['themeVariant']): string {
++  switch (themeVariant) {
++    case 'ottoman_heritage':
++      return `ART STYLE — warm hand-illustrated heritage poster (like a Beypazarı Ankara tourism poster):
++- Soft warm color palette: sage green, terracotta brown, cream paper background.
++- Dashed/stitched-line decorative borders around text boxes, like a scrapbook page.
++- Hand-drawn watercolor-style illustrations of the featured buildings/objects (not photos) with a cozy folk-art feel.
++- A small charming cartoon mascot character in traditional local dress standing near the bottom corner, waving.
++- A simplified, cute illustrated map of Türkiye/Ankara with a pin marking the location, placed in a top corner.
++- Rounded, friendly hand-lettered display font for the main title, with a small heart or leaf doodle accent.
++- Circular photo-badges with scalloped or rope-style borders for each "what's there" item, each paired with a simple flat icon (teapot, loom, bridge, etc).`;
++    case 'art_deco':
++      return `ART STYLE — bright playful kids' educational poster (like an Atakule Ankara poster for children):
++- Bold saturated color blocks: sky blue, sunshine yellow, purple, coral pink.
++- Big chunky bubble-letter title with a thick white outline and drop shadow, slightly tilted for energy.
++- Comic-style decorative stickers scattered around: stars, hearts, sparkles, exclamation bursts.
++- Two cheerful cartoon children mascots (one boy, one girl) pointing or waving near the bottom.
++- Rounded speech-bubble callouts for fun-fact text.
++- A simplified cartoon map with a location pin in a rounded card.
++- Icon badges are solid-colored circles with simple white line-art icons (recycle bin, hand, water drop, group of people).
++- Everything has thick rounded outlines, like a children's picture book illustration.`;
++    case 'modern_minimalist':
++      return `ART STYLE — clean modern editorial poster:
++- Minimal palette (2-3 colors max) on a crisp white or very light background.
++- Generous negative space, thin geometric divider lines, no ornamentation.
++- Sans-serif typography throughout, confident large title.
++- Icons are simple single-line (outline) glyphs inside thin-bordered circles.
++- The photo sits in a sharp-edged or subtly rounded rectangle with a thin hairline border, no heavy frame.
++- Overall feel: contemporary museum wayfinding signage / a well-designed infographic, not decorative.`;
++    case 'classic_antique':
++    default:
++      return `ART STYLE — classic museum heritage poster (like an Erimtan Müzesi Ankara poster):
++- Deep navy and aged-gold color palette on warm ivory paper background.
++- Ancient Greek/Roman fluted column illustrations flanking the header and the quote box.
++- Real architectural/interior photography (not cartoon) placed in a rounded frame with a thin gold border, top-right.
++- Elegant serif typography for the title, italic serif for the slogan and quote.
++- Circular dark-navy badge icons with a single gold emblem (column, vase, musical note) for each list item.
++- Thin gold rule lines separating sections, understated and academic in tone, like a real museum wall panel.`;
++  }
++}
++
++/**
++ * Generates the ENTIRE 1-page infographic poster as a single AI image (Nano Banana Pro /
++ * gemini-3-pro-image-preview), instead of hand-drawing it with Canvas primitives.
++ * This is what lets the output actually match the illustrated richness of the 4 reference
++ * posters (Beypazarı, Erimtan, Atakule, etc.) — Canvas2D shapes alone cannot replicate
++ * watercolor illustrations, mascots, or hand-drawn maps.
++ *
++ * Falls back by throwing if no API key is configured or the request fails; callers should
++ * catch and fall back to generatePosterImageFromCanvas (utils/posterCanvasGenerator.ts).
++ */
++export async function generateFullPosterImage(
++  data: InfographicPosterData,
++  district: string,
++  authorName: string,
++  authorSchool: string,
++  referencePhoto?: { mimeType: string; data: string } | null,
++  apiKey?: string
++): Promise<string> {
++  const resolvedApiKey = apiKey || getGeminiApiKey();
++  if (!resolvedApiKey) {
++    throw new Error('Gemini API anahtarı tanımlı değil (VITE_GEMINI_API_KEY).');
++  }
++
++  const ds = data.designSystem;
++  const styleDirective = getStyleDirective(ds?.themeVariant || 'classic_antique');
++
++  const whatItemsText = data.whatIsThere
++    .map((item, i) => `  ${i + 1}. "${item.title}" — "${item.desc}"`)
++    .join('\n');
++  const learningsText = data.learnings.map((l, i) => `  ${i + 1}. "${l}"`).join('\n');
++  const tipsText = data.visitTips.map((t, i) => `  ${i + 1}. "${t}"`).join('\n');
++
++  const prompt = `Design a single-page A4-portrait Turkish educational cultural-heritage poster / infographic info-card for the "Ankara Dijital Kültür Rotaları" school programme (Turkish Ministry of Education, Ankara Provincial Directorate).
++
++${styleDirective}
++
++CRITICAL — TEXT ACCURACY:
++Render every Turkish text string below EXACTLY as written, including Turkish letters (ç, ğ, ı, İ, ö, ş, ü). Do not translate, do not paraphrase, do not invent additional text. Keep the text legible and correctly spelled — proofread it against the source before finalizing.
++
++LAYOUT (8 zones, top to bottom / left to right):
++1. Top-left header: small tag line "${data.headerTag}", then a large title "${data.mainTitle.toUpperCase()}", then slogan "${data.slogan}".
++2. Top-right: a featured photo/illustration of the place in a decorative frame${referencePhoto ? ' (use the attached reference photo as the visual basis for this frame — keep the building/scene recognizable)' : ''}.
++3. Left box "${data.mainTitle.toUpperCase()} HAKKINDA": body text — "${data.aboutText}"
++4. Left box "MÜZEDE / ROTADA NELER VAR?": three items —
++${whatItemsText}
++5. Right box "GEZİ BİLGİLERİ":
++   YER: "${data.geziBilgileri.yer}"
++   ZİYARET SAATLERİ: "${data.geziBilgileri.saatler}"
++   KURUCU / MİMAR: "${data.geziBilgileri.kurucu}"
++   ULAŞIM: "${data.geziBilgileri.ulasim}"
++   Small note: "Hazırlayan: Öğr. ${authorName} (${authorSchool})"
++6. Full-width strip "GEZİMİZDEN NELER ÖĞRENECEĞİZ?": five short learning-outcome items in a row, each with its own icon —
++${learningsText}
++7. Bottom-left strip "GEZİMİZİ VERİMLİ GEÇİRMEK İÇİN": five short visit-tip lines, each with its own icon —
++${tipsText}
++8. Bottom-right quote box with decorative quotation marks: "${data.quote}"
++
++The poster must read as ONE cohesive finished graphic design (not a mockup, not a screenshot of a website, no browser chrome, no placeholder lorem ipsum). Portrait orientation, print-poster quality.`;
++
++  const parts: any[] = [{ text: prompt }];
++  if (referencePhoto) {
++    parts.push({
++      inlineData: {
++        mimeType: referencePhoto.mimeType,
++        data: referencePhoto.data,
++      },
++    });
++  }
++
++  const response = await fetch(
++    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${resolvedApiKey}`,
++    {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify({
++        contents: [{ role: 'user', parts }],
++        generationConfig: {
++          responseModalities: ['IMAGE'],
++          imageConfig: { aspectRatio: '3:4', imageSize: '2K' },
++        },
++      }),
++    }
++  );
++
++  if (!response.ok) {
++    const errBody = await response.text().catch(() => '');
++    throw new Error(`Gemini poster görsel API isteği başarısız (HTTP ${response.status}): ${errBody}`);
++  }
++
++  const responseData = await response.json();
++  const imagePart = responseData.candidates?.[0]?.content?.parts?.find(
++    (p: any) => p.inlineData?.data
++  );
++
++  if (!imagePart) {
++    throw new Error('Gemini poster görsel yanıtı boş döndü.');
++  }
++
++  return `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`;
++}
++
+ function synthesizeSmartInfographicData(
+   rawText: string,
+   routeCategory: RouteCategory,
+diff --git a/src/utils/posterCanvasGenerator.ts b/src/utils/posterCanvasGenerator.ts
+index 6f260bd..514ebeb 100644
+--- a/src/utils/posterCanvasGenerator.ts
++++ b/src/utils/posterCanvasGenerator.ts
+@@ -329,7 +329,19 @@ export async function generatePosterImageFromCanvas(
+   ctx.font = 'bold 54px Georgia, serif';
+   ctx.fillText('”', 1045, qy + 10);
+ 
+-  return canvas.toDataURL('image/jpeg', 0.94);
++  // Guarantee export: a cross-origin photo without CORS headers (e.g. an AI-generated
++  // preview image) can "taint" the canvas, which makes toDataURL throw a SecurityError.
++  // If that happens, redraw the frame with the safe local fallback photo instead of
++  // failing the whole poster generation.
++  try {
++    return canvas.toDataURL('image/jpeg', 0.94);
++  } catch (err) {
++    console.warn('Canvas dışa aktarma (toDataURL) güvenlik kısıtlaması nedeniyle başarısız oldu, yerel görsel ile yeniden deneniyor.', err);
++    if (photoUrl !== '/posters/resim-heykel-bina.png') {
++      return generatePosterImageFromCanvas({ ...params, photoUrl: '/posters/resim-heykel-bina.png' });
++    }
++    throw err;
++  }
+ }
+ 
+ // Utility: Draw Header Badge
+diff --git a/src/vite-env.d.ts b/src/vite-env.d.ts
+index f6c9d7f..7714678 100644
+--- a/src/vite-env.d.ts
++++ b/src/vite-env.d.ts
+@@ -7,6 +7,8 @@ interface ImportMetaEnv {
+   readonly VITE_FIREBASE_STORAGE_BUCKET: string
+   readonly VITE_FIREBASE_MESSAGING_SENDER_ID: string
+   readonly VITE_FIREBASE_APP_ID: string
++  readonly VITE_GEMINI_API_KEY: string
++  readonly VITE_GEMINI_PROJECT_ID: string
+ }
+ 
+ interface ImportMeta {

@@ -54,10 +54,8 @@ export async function generatePosterImageFromCanvas(
   ctx.beginPath();
   ctx.strokeStyle = cardBorderColor;
   ctx.lineWidth = 14;
-  ctx.strokeRect(7, 7, width - 14, height - 14);
-
-  // Decorative Pillar Illustration (Left Header Accent)
-  drawPillarGraphic(ctx, 35, 30, 48, 230, accentColor);
+  ctx.strokeRect(7, 7, width - 14, height - 14);  // Decorative Header Accent Illustration (Left Header Accent)
+  drawThemeHeaderAccent(ctx, ds.themeVariant, 35, 30, 48, 230, accentColor);
 
   // 2. TOP LEFT HEADER SECTION
   ctx.beginPath();
@@ -132,7 +130,7 @@ export async function generatePosterImageFromCanvas(
   // --- Left Box 1: ABOUT (HAKKINDA) ---
   const aboutTitle = (data.mainTitle || 'MEKAN').toUpperCase() + ' HAKKINDA';
   drawBadgeHeader(ctx, 35, 425, 535, 44, aboutTitle, '🏛️', primaryColor);
-  drawRoundedBox(ctx, 35, 475, 535, 165, cardBorderColor);
+  drawRoundedBox(ctx, 35, 475, 535, 165, cardBorderColor, ds.themeVariant);
 
   ctx.beginPath();
   ctx.fillStyle = '#1E293B';
@@ -147,7 +145,7 @@ export async function generatePosterImageFromCanvas(
 
   // --- Left Box 2: WHAT IS THERE (MÜZEDE NELER VAR?) ---
   drawBadgeHeader(ctx, 35, 655, 535, 44, 'MÜZEDE / ROTADA NELER VAR?', '🏺', primaryColor);
-  drawRoundedBox(ctx, 35, 705, 535, 345, cardBorderColor);
+  drawRoundedBox(ctx, 35, 705, 535, 345, cardBorderColor, ds.themeVariant);
 
   const whatItems = data.whatIsThere || [
     { title: 'ARKEOLOJİ VE SANAT KOLEKSİYONU', desc: 'Tarihi dönemlere ait eserler ve objeler.' },
@@ -188,7 +186,7 @@ export async function generatePosterImageFromCanvas(
 
   // --- Right Box 3: GEZİ BİLGİLERİ ---
   drawBadgeHeader(ctx, 585, 425, 580, 44, '📍 GEZİ BİLGİLERİ', '📍', primaryColor);
-  drawRoundedBox(ctx, 585, 475, 580, 575, cardBorderColor);
+  drawRoundedBox(ctx, 585, 475, 580, 575, cardBorderColor, ds.themeVariant);
 
   let infoY = 515;
   const gezi = data.geziBilgileri || {
@@ -225,7 +223,7 @@ export async function generatePosterImageFromCanvas(
 
   // 5. BOTTOM SECTION 1: GEZİMİZDEN NELER ÖĞRENECEĞİZ? (Y: 1070)
   drawBadgeHeader(ctx, 35, 1070, 1130, 44, '⚙️ GEZİMİZDEN NELER ÖĞRENECEĞİZ?', '⚙️', primaryColor);
-  drawRoundedBox(ctx, 35, 1120, 1130, 190, cardBorderColor);
+  drawRoundedBox(ctx, 35, 1120, 1130, 190, cardBorderColor, ds.themeVariant);
 
   const learnings = data.learnings || [
     "Ankara'nın tarihi ve kültürel mirasını tanıyacağız.",
@@ -268,7 +266,7 @@ export async function generatePosterImageFromCanvas(
 
   // 6. BOTTOM SECTION 2: VERİMLİ GEÇİRMEK İÇİN & QUOTE (Y: 1330)
   drawBadgeHeader(ctx, 35, 1330, 680, 44, '🎒 GEZİMİZİ VERİMLİ GEÇİRMEK İÇİN', '🎒', primaryColor);
-  drawRoundedBox(ctx, 35, 1380, 680, 270, cardBorderColor);
+  drawRoundedBox(ctx, 35, 1380, 680, 270, cardBorderColor, ds.themeVariant);
 
   const tips = data.visitTips || [
     'Defter ve kalem getirmeyi unutma.',
@@ -301,9 +299,9 @@ export async function generatePosterImageFromCanvas(
   });
 
   // Right Quote Box
-  drawRoundedBox(ctx, 735, 1330, 430, 320, cardBorderColor);
+  drawRoundedBox(ctx, 735, 1330, 430, 320, cardBorderColor, ds.themeVariant);
 
-  drawPillarGraphic(ctx, 1115, 1350, 36, 270, accentColor);
+  drawThemeHeaderAccent(ctx, ds.themeVariant, 1115, 1350, 36, 270, accentColor);
 
   ctx.beginPath();
   ctx.fillStyle = accentColor;
@@ -329,7 +327,79 @@ export async function generatePosterImageFromCanvas(
   ctx.font = 'bold 54px Georgia, serif';
   ctx.fillText('”', 1045, qy + 10);
 
-  return canvas.toDataURL('image/jpeg', 0.94);
+  // Guarantee export: a cross-origin photo without CORS headers (e.g. an AI-generated
+  // preview image) can "taint" the canvas, which makes toDataURL throw a SecurityError.
+  // If that happens, redraw the frame with the safe local fallback photo instead of failing.
+  try {
+    return canvas.toDataURL('image/jpeg', 0.94);
+  } catch (err) {
+    console.warn('Canvas dışa aktarma (toDataURL) güvenlik kısıtlaması nedeniyle başarısız oldu, yerel görsel ile yeniden deneniyor.', err);
+    if (photoUrl !== '/posters/resim-heykel-bina.png') {
+      return generatePosterImageFromCanvas({ ...params, photoUrl: '/posters/resim-heykel-bina.png' });
+    }
+    throw err;
+  }
+}
+
+// Theme Accent Graphics
+function drawThemeHeaderAccent(
+  ctx: CanvasRenderingContext2D,
+  themeVariant: string,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color: string
+) {
+  if (themeVariant === 'ottoman_heritage') {
+    // Ottoman Pointed Dome / Arch Motif
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3.5;
+    ctx.moveTo(x, y + h);
+    ctx.lineTo(x, y + h * 0.4);
+    ctx.quadraticCurveTo(x, y + h * 0.1, x + w / 2, y);
+    ctx.quadraticCurveTo(x + w, y + h * 0.1, x + w, y + h * 0.4);
+    ctx.lineTo(x + w, y + h);
+    ctx.stroke();
+    // Inner arch
+    ctx.beginPath();
+    ctx.lineWidth = 1.5;
+    ctx.moveTo(x + 6, y + h);
+    ctx.lineTo(x + 6, y + h * 0.42);
+    ctx.quadraticCurveTo(x + 6, y + h * 0.15, x + w / 2, y + 8);
+    ctx.quadraticCurveTo(x + w - 6, y + h * 0.15, x + w - 6, y + h * 0.42);
+    ctx.lineTo(x + w - 6, y + h);
+    ctx.stroke();
+    ctx.restore();
+  } else if (themeVariant === 'art_deco') {
+    // Sunburst / Star Emblem Motif
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    const cx = x + w / 2;
+    const cy = y + 40;
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      const rx = cx + Math.cos(angle) * 22;
+      const ry = cy + Math.sin(angle) * 22;
+      ctx.fillRect(rx - 3, ry - 3, 6, 6);
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  } else if (themeVariant === 'modern_minimalist') {
+    // Minimalist Solid Accent Bar
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.roundRect(x, y, 8, h, 4);
+    ctx.fill();
+  } else {
+    // classic_antique: Greek Column Pillar
+    drawPillarGraphic(ctx, x, y, w, h, color);
+  }
 }
 
 // Utility: Draw Header Badge
@@ -362,15 +432,30 @@ function drawRoundedBox(
   y: number,
   w: number,
   h: number,
-  borderColor: string = '#D8CBB7'
+  borderColor: string = '#D8CBB7',
+  themeVariant: string = 'classic_antique'
 ) {
+  ctx.save();
   ctx.beginPath();
   ctx.fillStyle = '#ffffff';
-  ctx.roundRect(x, y, w, h, 14);
+  ctx.roundRect(x, y, w, h, themeVariant === 'modern_minimalist' ? 4 : 14);
   ctx.fill();
+
   ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 2;
+
+  if (themeVariant === 'ottoman_heritage') {
+    ctx.setLineDash([8, 6]);
+    ctx.lineWidth = 2.5;
+  } else if (themeVariant === 'art_deco') {
+    ctx.lineWidth = 3;
+  } else if (themeVariant === 'modern_minimalist') {
+    ctx.lineWidth = 1;
+  } else {
+    ctx.lineWidth = 2;
+  }
+
   ctx.stroke();
+  ctx.restore();
 }
 
 // Utility: Draw Gezi Bilgileri Row

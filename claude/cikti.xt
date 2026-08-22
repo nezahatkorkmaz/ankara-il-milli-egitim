@@ -1,0 +1,21 @@
+Now replace the deprecated Imagen call with a Nano Banana (gemini-3-pro-image-preview) `generateContent` call:Now update the JSON text-generation call model name:Now add the core new capability: generating the entire poster as one AI image, matching the reference posters' rich illustrated style per theme.Now wire this into `StoryUploadModal.tsx` — try the full AI poster first, keep the Canvas renderer as an automatic fallback:Also update the standalone "AI Yapay Zeka Fotoğrafı Üret" button to use the current API key/model too:Already wired correctly from the earlier fix. Now let's type-check and build:Temiz derleniyor. Şimdi tam güncel diff'i çıkarıp sana teslim ediyorum:**Yaptığım değişiklikler (bir önceki düzeltmelerin üzerine):**
+
+**1. Modelleri güncelledim — bu ayrıca kritik bir bug'dı:**
+Kodda kullanılan `imagen-3.0-generate-002` **17 Ağustos 2026'da kapatıldı**, `gemini-1.5-flash` de zaten çoktan devre dışı — yani API anahtarı doğru bağlansa bile eski model isimleriyle istekler 404 dönerdi. Güncel modellere geçirdim:
+- Metin/JSON üretimi → `gemini-3.1-flash`
+- Görsel üretimi → `gemini-3-pro-image-preview` ("Nano Banana Pro" — Google'ın metin/yazı render kalitesi en yüksek görsel modeli, tam da afişteki Türkçe metinler için gerekli)
+
+**2. Yeni fonksiyon: `generateFullPosterImage()`** — seçtiğin yaklaşım
+Artık afiş Canvas ile kutu kutu çizilmiyor; Gemini'ye 8 bölümün **tam metnini birebir** (yanlış yazılmasın diye) ve `themeVariant`'a göre değişen ayrıntılı bir **sanat yönü talimatı** vererek TEK bir illüstrasyonlu görsel ürettiriyorum:
+- `classic_antique` → Erimtan tarzı: lacivert/altın, gerçek mimari fotoğraf, antik sütun motifleri
+- `ottoman_heritage` → Beypazarı tarzı: suluboya illüstrasyon, kesikli çerçeveler, maskot karakter, elle çizilmiş harita
+- `art_deco` → Atakule tarzı: parlak renkler, kalın kontürlü başlık, çocuk maskotları, çıkartmalar
+- `modern_minimalist` → sade/editoryal
+
+Kullanıcının yüklediği fotoğraf varsa, referans görsel olarak modele ekleniyor (`inlineData`) ki sağ üst çerçevede tanınabilir kalsın.
+
+**3. Güvenlik ağı korundu:** Tam-görsel üretimi API anahtarı yoksa veya hata verirse (ör. içerik filtresi, kota, ağ hatası) otomatik olarak eski Canvas motoruna düşüyor — yani afiş asla "hiç üretilemedi" durumuna düşmüyor, sadece daha sade bir versiyona geri dönüyor.
+
+**Önemli uyarı — metin doğruluğu riski:** Görsel üretim modelleri (Nano Banana Pro dahil) uzun Türkçe metinleri (ç/ğ/ı/ö/ş/ü) bazen yanlış yazabiliyor veya harf atlayabiliyor. Prompt'ta bunu özellikle vurguladım ("EXACTLY as written... proofread before finalizing") ama %100 garanti değil — canlıya almadan önce birkaç gerçek mekan ile test edip üretilen afişlerdeki yazıları gözle kontrol etmeni öneririm. Sorun çıkarsa hibrit yaklaşıma (metin Canvas'ta, sadece köşe illüstrasyonu AI'da) geçmek her zaman mümkün, altyapı buna hazır.
+
+Patch dosyasını `git apply` ile uygulayıp `.env` dosyanda `VITE_GEMINI_API_KEY`'in gerçekten dolu olduğunu doğruladıktan sonra test etmeni öneririm.

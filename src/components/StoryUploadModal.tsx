@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { User, DigitalStoryCard, RouteCategory } from '../types';
-import { X, UploadCloud, CheckCircle2, GraduationCap, Image as ImageIcon, MapPin, Tag, FileText, Sparkles, RefreshCw, Loader2, AlertCircle, Wand2, ArrowRight } from 'lucide-react';
+import { X, UploadCloud, CheckCircle2, Image as ImageIcon, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { uploadPosterAndCreateStory } from '../firebase';
-import { generateInfographicPosterData, generateAiBuildingImage } from '../services/geminiService';
+import { generateInfographicPosterData } from '../services/geminiService';
 import { generatePosterImageFromCanvas } from '../utils/posterCanvasGenerator';
 
 interface StoryUploadModalProps {
@@ -31,8 +31,8 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
 
   // Form Fields
   const [title, setTitle] = useState<string>('');
-  const [routeCategory, setRouteCategory] = useState<RouteCategory>('Ulus ve Müzeler Rotası');
-  const [district, setDistrict] = useState<string>('Altındağ');
+  const [routeCategory, setRouteCategory] = useState<RouteCategory>('Cumhuriyete Giden Yol');
+  const [district, setDistrict] = useState<string>('Çankaya');
   const [targetLevel, setTargetLevel] = useState<string>('Ortaokul / Lise (Tüm Seviyeler)');
   const [description, setDescription] = useState<string>('');
   const [tagsInput, setTagsInput] = useState<string>('Ankara, Kültür Rotası, Infografik Afiş');
@@ -43,104 +43,74 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
 
   // AI Mode State
   const [rawStoryText, setRawStoryText] = useState<string>(
-    "Ankara Devlet Resim ve Heykel Müzesi 1927 yılında mimar Arif Hikmet Koyunoğlu tarafından Birinci Ulusal Mimarlık Akımı doğrultusunda inşa edilmiştir. Türk resim ve heykel sanatının en nadide şaheserlerini barındırmaktadır. Müze Altındağ ilçesinde Ulus ve Müzeler Rotası üzerindedir."
+    "Anıtkabir, Türkiye Cumhuriyeti'nin kurucusu Gazi Mustafa Kemal Atatürk'ün ebedi istirahatgâhıdır. Ankara'nın Çankaya ilçesinde, tarihi Rasattepe üzerinde inşa edilmiştir. Mimar Prof. Emin Onat ve Doç. Orhan Arda tarafından İkinci Ulusal Mimarlık Akımı doğrultusunda tasarlanan yapı; Aslanlı Yol, Tören Meydanı, Mozole ve Atatürk ve Kurtuluş Savaşı Müzesi'nden oluşmaktadır. Türk milletinin bağımsızlık mücadelesini ve Cumhuriyet devrimlerini simgeleyen Anıtkabir, Cumhuriyete Giden Yol Kültür Rotası'nın en önemli mekanıdır."
   );
-  const [aiPhotoFile, setAiPhotoFile] = useState<File | null>(null);
-  const [aiPhotoPreview, setAiPhotoPreview] = useState<string>('/posters/resim-heykel-bina.png');
+  const [userPhotoFile, setUserPhotoFile] = useState<File | null>(null);
+  const [userPhotoPreview, setUserPhotoPreview] = useState<string>('/posters/anitkabir-bina.png');
   const [isAiGenerating, setIsAiGenerating] = useState<boolean>(false);
-  const [isGeneratingAiImage, setIsGeneratingAiImage] = useState<boolean>(false);
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const aiFileInputRef = useRef<HTMLInputElement>(null);
+  const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        setValidationError('Lütfen geçerli bir görsel dosyası seçiniz (JPG, PNG, WEBP).');
-        return;
-      }
-      setValidationError('');
-      setSelectedFile(file);
+      setUserPhotoFile(file);
       const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setUserPhotoPreview(url);
     }
   };
 
-  const handleAiPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAiPhotoFile(file);
-      const url = URL.createObjectURL(file);
-      setAiPhotoPreview(url);
-    }
-  };
-
-  // Dedicated AI Building Photo Generator
-  const handleGenerateAiPhoto = async () => {
-    setValidationError('');
-    setIsGeneratingAiImage(true);
-
-    try {
-      const prompt = rawStoryText.substring(0, 50) || 'Ankara Resim ve Heykel Müzesi';
-      const generatedImageUrl = await generateAiBuildingImage(prompt);
-      setAiPhotoPreview(generatedImageUrl);
-      setAiPhotoFile(null);
-      setSuccessMessage('🎨 Yapay zeka mekân görselini başarıyla oluşturdu!');
-    } catch (err: any) {
-      setValidationError('AI Görseli oluşturulurken bir hata oluştu.');
-    } finally {
-      setIsGeneratingAiImage(false);
-    }
-  };
-
-  // Multimodal Gemini AI Poster Generation
+  // Multimodal Gemini AI Vision-Language Poster Generation
   const handleGenerateAiPoster = async () => {
     setValidationError('');
     if (!rawStoryText.trim()) {
-      setValidationError('Lütfen AI afiş üretimi için mekan hikayesini veya ders notlarını giriniz.');
+      setValidationError('Lütfen afiş üretimi için mekan hikayesini veya ders notlarını giriniz.');
       return;
     }
 
     setIsAiGenerating(true);
 
     try {
-      // 1. Send Multimodal Input (Text + Photo File) to Gemini AI
+      // 1. Send raw text and uploaded photo file to Gemini 1.5 Flash Vision-Language API
       const infographicData = await generateInfographicPosterData(
         rawStoryText,
         routeCategory,
         district,
-        aiPhotoFile
+        userPhotoFile
       );
 
-      // Use uploaded image or AI generated photo
-      const finalPhotoUrl = aiPhotoPreview || infographicData.aiGeneratedImageUrl || '/posters/resim-heykel-bina.png';
+      // 2. Determine photo URL
+      let photoUrlToUse = userPhotoPreview;
+      if (userPhotoFile) {
+        photoUrlToUse = URL.createObjectURL(userPhotoFile);
+      }
 
-      // 2. Dynamically synthesize 1-page Infographic Poster based on Gemini AI design system tokens
-      const generatedPosterDataUrl = await generatePosterImageFromCanvas({
+      // 3. Render exact 4-poster style infographic canvas
+      const posterCanvasDataUrl = await generatePosterImageFromCanvas({
         data: infographicData,
-        photoUrl: finalPhotoUrl,
+        photoUrl: photoUrlToUse,
         routeCategory,
         district,
         authorName: currentUser.name,
         authorSchool: currentUser.school,
       });
 
-      // 3. Populate form fields automatically
+      // 4. Update form inputs and preview
       setTitle(infographicData.mainTitle);
       setDescription(infographicData.aboutText);
-      setPreviewUrl(generatedPosterDataUrl);
+      setPreviewUrl(posterCanvasDataUrl);
       setSelectedFile(null);
 
-      setSuccessMessage('✨ Multimodal Gemini AI metni ve fotoğrafı analiz ederek Özgün Dinamik Afişi tasarladı!');
+      setSuccessMessage('✨ İnfografik kültür afişiniz başarıyla oluşturuldu!');
     } catch (err: any) {
-      setValidationError(err.message || 'AI Afiş oluşturulurken bir hata meydana geldi.');
+      setValidationError(err.message || 'Afiş oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsAiGenerating(false);
     }
@@ -233,7 +203,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container large" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '780px', borderRadius: '12px' }}>
+      <div className="modal-container large" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '750px', borderRadius: '12px' }}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ padding: '8px', backgroundColor: 'var(--meb-red-light)', borderRadius: '6px', color: 'var(--meb-red)' }}>
@@ -274,7 +244,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
               }}
             >
               <Sparkles size={17} color="var(--meb-red)" />
-              <span>✨ 1. Multimodal Gemini AI ile Dinamik Afiş Tasarla</span>
+              <span>✨ 1. Multimodal Gemini AI ile Afiş Oluştur</span>
             </button>
 
             <button
@@ -321,158 +291,47 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
           {activeMode === 'ai' && (
             <div style={{ backgroundColor: '#FAF7F2', border: '1px solid #E2D8CC', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
               
-              {/* Visual Showcase Guide Card */}
-              <div style={{
-                backgroundColor: '#ffffff',
-                border: '1.5px solid #0B1E36',
-                borderRadius: '10px',
-                padding: '16px',
-                marginBottom: '18px',
-                boxShadow: '0 4px 12px rgba(11,30,54,0.06)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <Sparkles size={20} color="var(--meb-red)" />
-                  <h4 style={{ fontSize: '14.5px', fontWeight: 800, margin: 0, color: '#0B1E36' }}>
-                    💡 Multimodal Gemini AI ile Dinamik Afiş Üretimi
-                  </h4>
-                </div>
-
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto 1fr',
-                  gap: '12px',
-                  alignItems: 'center',
-                  backgroundColor: '#FAF7F2',
-                  padding: '14px',
-                  borderRadius: '8px',
-                  border: '1px solid #E2D8CC',
-                  marginBottom: '12px'
-                }}>
-                  {/* Step 1: Input Building Photo */}
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--meb-red)', marginBottom: '6px' }}>
-                      1. FOTOĞRAF VEYA AI GÖRSELİ
-                    </div>
-                    <img
-                      src={aiPhotoPreview}
-                      alt="Mimari Yapı Görseli"
-                      style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '6px', border: '1.5px solid #cbd5e1' }}
-                    />
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-                      Fotoğraf veya Üretilen AI Görseli
-                    </div>
-                  </div>
-
-                  {/* Arrow Icon */}
-                  <div style={{ textAlign: 'center', padding: '0 4px' }}>
-                    <div style={{
-                      backgroundColor: '#0B1E36',
-                      color: '#ffffff',
-                      width: '34px',
-                      height: '34px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 4px auto',
-                      fontWeight: 'bold',
-                      fontSize: '16px'
-                    }}>
-                      ➔
-                    </div>
-                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#0B1E36' }}>Multimodal Gemini AI</div>
-                  </div>
-
-                  {/* Step 2: Output Infographic Poster */}
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#166534', marginBottom: '6px' }}>
-                      2. DİNAMİK İNFOGRAFİK AFİŞ
-                    </div>
-                    <img
-                      src="/posters/erimtan-infografik-ornek.jpg"
-                      alt="Infografik Afiş Çıktısı"
-                      style={{ width: '100%', height: '110px', objectFit: 'contain', borderRadius: '6px', border: '1.5px solid #86efac' }}
-                    />
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-                      Dinamik Temalı Kültür Afişi
-                    </div>
-                  </div>
-                </div>
-
-                <p style={{ fontSize: '12.5px', color: '#334155', margin: 0, lineHeight: 1.55, textAlign: 'left' }}>
-                  📢 <strong>Multimodal Yapay Zeka:</strong> Fotoğrafı ve doğal dil anlatımınızı doğrudan Gemini AI'a girdi olarak veriyoruz. Sistem promptu sayesinde Gemini AI mekanın ruhuna uygun <strong>özgün renk paletini, temayı ve bilgileri dinamik olarak belirleyip afişinizi üretir!</strong>
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0B1E36', display: 'block', marginBottom: '6px' }}>
-                  1. MİMARİ YAPI / MEKÂN FOTOĞRAFI (GEMINI MULTIMODAL GİRDİSİ)
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#0B1E36', display: 'block', marginBottom: '6px' }}>
+                  1. MEKÂN FOTOĞRAFI YÜKLE
                 </label>
                 <input
                   type="file"
-                  ref={aiFileInputRef}
-                  onChange={handleAiPhotoChange}
+                  ref={photoFileInputRef}
+                  onChange={handlePhotoChange}
                   accept="image/*"
                   style={{ display: 'none' }}
                 />
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <button
                     type="button"
                     className="btn-meb-outline"
-                    onClick={() => aiFileInputRef.current?.click()}
-                    style={{ fontSize: '12.5px', padding: '9px 14px' }}
+                    onClick={() => photoFileInputRef.current?.click()}
+                    style={{ fontSize: '13px', padding: '9px 16px' }}
                   >
                     <ImageIcon size={16} />
-                    <span>Cihazdan Fotoğraf Seç (Gemini Girdisi)</span>
+                    <span>Cihazdan Fotoğraf Yükle</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={handleGenerateAiPhoto}
-                    disabled={isGeneratingAiImage}
-                    style={{
-                      fontSize: '12.5px',
-                      padding: '9px 14px',
-                      backgroundColor: '#1E293B',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    {isGeneratingAiImage ? (
-                      <>
-                        <Loader2 size={16} className="spin-animation" />
-                        <span>AI Görsel Üretiliyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 size={16} color="#F59E0B" />
-                        <span>🎨 AI Yapay Zeka Fotoğrafı Üret</span>
-                      </>
-                    )}
-                  </button>
-
-                  {aiPhotoPreview && (
-                    <img
-                      src={aiPhotoPreview}
-                      alt="Seçilen Fotoğraf"
-                      style={{ width: '55px', height: '42px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    />
+                  {userPhotoPreview && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <img
+                        src={userPhotoPreview}
+                        alt="Yüklenen Fotoğraf"
+                        style={{ width: '60px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1.5px solid #0B1E36' }}
+                      />
+                      <span style={{ fontSize: '12px', color: '#166534', fontWeight: 600 }}>✓ Fotoğraf eklendi</span>
+                    </div>
                   )}
                 </div>
               </div>
 
               <div className="form-group" style={{ marginBottom: '14px' }}>
-                <label style={{ color: '#0B1E36' }}>2. DOĞAL DİLLE DERS NOTLARI VEYA MEKÂN HİKAYESİ</label>
+                <label style={{ color: '#0B1E36' }}>2. DERS NOTLARI VEYA MEKÂN HİKAYESİ METNİ</label>
                 <textarea
                   className="form-control"
                   rows={4}
-                  placeholder="Örn: Ankara Devlet Resim ve Heykel Müzesi 1927 yılında mimar Arif Hikmet Koyunoğlu tarafından inşa edilmiştir. Türk resim ve heykel sanatının nadide eserlerini barındırmaktadır. Ulus ve Müzeler Rotası üzerindedir..."
+                  placeholder="Mekan hakkında bilgi ve hikayeleri buraya giriniz..."
                   value={rawStoryText}
                   onChange={(e) => setRawStoryText(e.target.value)}
                 />
@@ -497,7 +356,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Örn: Altındağ, Çankaya, Polatlı"
+                    placeholder="Örn: Çankaya, Altındağ"
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
                   />
@@ -508,7 +367,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 type="button"
                 className="btn-meb-primary"
                 onClick={handleGenerateAiPoster}
-                disabled={isAiGenerating || isGeneratingAiImage}
+                disabled={isAiGenerating}
                 style={{
                   width: '100%',
                   padding: '14px',
@@ -526,12 +385,12 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 {isAiGenerating ? (
                   <>
                     <Loader2 size={20} className="spin-animation" />
-                    <span>Multimodal Gemini AI Dinamik Afiş Tasarlıyor...</span>
+                    <span>Gemini AI İnfografik Afişi Çiziyor...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles size={20} />
-                    <span>✨ Multimodal Gemini AI ile Dinamik Afiş Tasarla</span>
+                    <span>✨ Multimodal Gemini AI ile Afiş Oluştur</span>
                   </>
                 )}
               </button>
@@ -545,7 +404,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Örn: ANKARA RESİM VE HEYKEL MÜZESİ"
+                placeholder="Örn: ANKARA ANITKABİR VE ATATÜRK MÜZESİ"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -568,8 +427,8 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
                 <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
                   OLUŞTURULAN 1 SAYFALIK İNFOGRAFİK AFİŞ ÖNİZLEMESİ
                 </label>
-                <div style={{ display: 'inline-block', border: '2px solid #0B1E36', borderRadius: '10px', overflow: 'hidden', maxHeight: '340px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
-                  <img src={previewUrl} alt="Infografik AfİŞ Önizleme" style={{ maxHeight: '340px', objectFit: 'contain', display: 'block' }} />
+                <div style={{ display: 'inline-block', border: '2px solid #0B1E36', borderRadius: '10px', overflow: 'hidden', maxHeight: '380px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
+                  <img src={previewUrl} alt="Infografik Afiş Önizleme" style={{ maxHeight: '380px', objectFit: 'contain', display: 'block' }} />
                 </div>
               </div>
             )}
@@ -579,7 +438,7 @@ export const StoryUploadModal: React.FC<StoryUploadModalProps> = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Ankara, Resim ve Heykel Müzesi, Kültür Rotası"
+                placeholder="Ankara, Anıtkabir, Kültür Rotası"
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
               />
